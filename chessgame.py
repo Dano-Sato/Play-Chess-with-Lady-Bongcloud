@@ -462,7 +462,7 @@ class mainScene(Scene):
         for code in mainScene.fenToSprite:
             for _ in range(20):
                 self.makeChessObj(code)
-                self.progress+=0.15
+                self.progress+=0.3
             
     
     def updateBoard(self):
@@ -977,6 +977,7 @@ class mainScene(Scene):
                 self.swapButton.fontColor = Cs.white
                 self.ladySays(random.choice(talkScript['newgame']))
                 Obj.renewCondition()
+                self.ladyBestMode = False
             return f
         self.rematchBlackButton.connect(rematch(False))
         self.rematchWhiteButton.connect(rematch(True))
