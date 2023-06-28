@@ -1033,6 +1033,7 @@ class mainScene(Scene):
                 self.hintCoolTime=127
                 mainScene.saveConfig()
                 self.makeBoard(False)
+                self.ladyBestMode = True
                 Rs.playSound('chess-rematch.wav')
                 self.ladySays(random.choice(talkScript['swap']))
                 self.swappedColorTimer = 25 ##컬러 스왑했음을 알려주는 타이머
