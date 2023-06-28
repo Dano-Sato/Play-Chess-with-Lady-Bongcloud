@@ -207,7 +207,7 @@ credit = """
 The game's source code is opened for anyone under GNU GENERAL PUBLIC LICENSE Version 3 (GPL v3).
 Steamworks SDK is not linked with the whole code.
 The game uses stockfish (Open  Source Chess Engine) and python-chess library.
-the github source code link is https://github.com/Dano-Sato/Ortolan. current bgm is """
+the github source code link is https://github.com/Dano-Sato/Play-Chess-with-Lady-Bongcloud. current bgm is """
 
 ##음악 저작권을 설명하는 크레딧
 musicCredits = {
