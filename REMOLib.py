@@ -449,7 +449,6 @@ class Rs:
     ###Path Pipeline###
     __pathData={}
     __pathPipeline={}
-    
     @classmethod
     def _buildPath(cls):
         Rs.__pathData={}
@@ -664,7 +663,6 @@ class Rs:
         
 
 
-Rs._buildPath() ## 경로 파이프라인을 구성한다.
 
 class Scene(ABC):
 
@@ -696,8 +694,10 @@ class Scene(ABC):
 ## Base Game class
 class REMOGame:
     currentScene = Scene()
+
     __lastStartedWindow = None
     def __init__(self,screen_size=(1920,1080),fullscreen=True,*,caption="REMOGame window"):
+        Rs._buildPath() ## 경로 파이프라인을 구성한다.
         pygame.init()
         Rs.__fullScreen=fullscreen
         Rs.screen_size = screen_size

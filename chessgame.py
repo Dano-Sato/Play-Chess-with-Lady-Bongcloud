@@ -247,6 +247,7 @@ class Obj():
     pieceVolume={"P":0.2,"N":0.5,"B":0.5,"R":0.7,"Q":1} ## 피스가 죽을 때 내는 볼륨
     heart = "♥"
     emptyHeart = "♡"
+    cursor = Rs.new(imageObj)
     
     @classmethod
     def renewCondition(cls):
@@ -901,6 +902,9 @@ class mainScene(Scene):
 
     def initOnce(self):
         Rs.setIcon("gameIcon_184.png")
+        pygame.mouse.set_visible(False)
+        Obj.cursor = imageObj("cursor.png",scale=0.5)
+
         self.proc = None
         #Obj.config["UserIsWhite"] = False
         self.legalMoveObjects = []
@@ -1463,7 +1467,9 @@ class mainScene(Scene):
             self.talkObj.draw()
         ## DEBUG ##
         #self.debugObj.draw() ##DEBUG
-        
+        Obj.cursor.pos = Rs.mousePos()
+        Obj.cursor.draw()
+
         return
 
 class configScene(Scene):
@@ -1629,6 +1635,8 @@ class configScene(Scene):
         self.leftSettingLayout.draw()
         if self.showCredit:
             configScene.credit.draw()
+        Obj.cursor.pos = Rs.mousePos()
+        Obj.cursor.draw()
 
         return
 
@@ -1659,6 +1667,8 @@ class helpScene(Scene):
         self.rule.draw()
         self.ruleLabel.draw()
         configScene.configBackButton.draw()
+        Obj.cursor.pos = Rs.mousePos()
+        Obj.cursor.draw()
         return
 
 
