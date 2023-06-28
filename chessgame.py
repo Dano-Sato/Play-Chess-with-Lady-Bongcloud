@@ -317,12 +317,12 @@ def stockFishProcess(time,fen,path,bongcloudOpened,isBestMode):
         def moveFilter(x):
             if x["Centipawn"]==None:
                 return False
-            return -200 < x["Centipawn"] < 100
+            return -300 < x["Centipawn"] < 100
     else:
         def moveFilter(x):
             if x["Centipawn"]==None:
                 return False
-            return -100 < x["Centipawn"] < 200
+            return -100 < x["Centipawn"] < 300
     stockfish = Obj.stockfish
     if random.random()>0.3:
         stockfish.set_elo_rating(3000)
@@ -455,36 +455,14 @@ class mainScene(Scene):
         else:
             self.chessObjs[algCode]=[obj]
         return obj
-    #죽은 기물을 표시하기 위한 스프라이트
-    def makeDeadChessObj(self,algCode):
-        index = mainScene.fenToSprite.index(algCode)
-        scale = Obj.game_geometry['board']['TileSize']/1000.0
-        obj = spriteObj("chess_sprite.png",pos=RPoint(0,0),sheetMatrix=(2,6),fromSprite=index,toSprite=index,scale=scale)
-        obj.code = algCode # objects has it's algebraic code
 
-        self.deadChessObjs[algCode]=obj
-        return obj
     
     def initChessObj(self):
         self.chessObjs={}
-        self.deadChessObjs={}
-        self.numberObjs ={}
         for code in mainScene.fenToSprite:
             for _ in range(20):
                 self.makeChessObj(code)
                 self.progress+=0.15
-            self.makeDeadChessObj(code)
-        for number in range(1,9):
-            self.numberObjs[number]=[]
-            if number in [1]:
-                maxcount = 15
-            elif number in [2]:
-                maxcount = 15
-            else:
-                maxcount = 15
-            for _ in range(maxcount):
-                self.progress+=0.3
-                self.numberObjs[number].append(textButton(str(number),size=Obj.game_geometry['sys']['FontSize'],hoverMode=False,color=Cs.black))
             
     
     def updateBoard(self):
@@ -542,36 +520,8 @@ class mainScene(Scene):
         myChilds = []
         herChilds = []
 
-        for code in mainScene.fenToSprite:
-            count = chessboard.count(code)
-            if code in ['p','P']:
-                all = 8
-            elif code in['q','Q','k','K']:
-                all = 1
-            else:
-                all = 2
-            deadCount = all - count
-            if deadCount<=0:
-                continue
-            isMine = code.islower() ^ Obj.config["UserIsWhite"]
-            if isMine:
-                self.deadChessObjs[code].setParent(None)
-                herChilds.append(self.deadChessObjs[code])
-                herChilds.append(self.numberObjs[deadCount].pop())
-            else:
-                self.deadChessObjs[code].setParent(None)
-                myChilds.append(self.deadChessObjs[code])
-                myChilds.append(self.numberObjs[deadCount].pop())
         s = 0
         
-        if hasattr(self,'myDeadObj'):
-            for child in self.myDeadObj.childs:
-                if type(child)==textButton and child.text in '12345678':
-                    self.numberObjs[int(child.text)].append(child)
-        if hasattr(self,'herDeadObj'):
-            for child in self.herDeadObj.childs:
-                if type(child)==textButton and child.text in '12345678':
-                    self.numberObjs[int(child.text)].append(child)
 
         self.myDeadObj = layoutObj(Obj.game_geometry['board']['MyDeadPos'],isVertical=False,spacing=s,childs=myChilds)
         self.herDeadObj = layoutObj(Obj.game_geometry['board']['HerDeadPos'],isVertical=False,spacing=s,childs=herChilds)
