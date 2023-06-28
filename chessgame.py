@@ -184,18 +184,15 @@ talkScript = {
             "Sir. I shall adopt your side, offering us a novel chess experience.",
             "It invites us to adapt and think differently.",
             "It adds an interesting twist to the game.",
-            "It adds a touch of excitement, doesn't it?",                                    
-            "Looks like winning is your top priority, sir.",
-            "It's clear that winning means a lot to you.",
-            
+            "It adds a touch of excitement, doesn't it?",                                                
             ]
 }
 game_geometry_n = {
     'lady':{'Pos':RPoint(1250,0),'Scale':0.7,'Hand':1.0,'breasts':pygame.Rect(1400,530,270,150)},   
-    'board':{'TileSize':100,'Pos':RPoint(100,60),'MyDeadPos':pygame.Rect(770,940,0,0),'HerDeadPos':pygame.Rect(920,80,0,0)},
+    'board':{'TileSize':100,'Pos':RPoint(100,60),'MyDeadPos':pygame.Rect(880,940,0,0),'HerDeadPos':pygame.Rect(920,80,0,0)},
     'talk':{'Pos':RPoint(1100,200),'TextSize':20,'TextWidth':350},
     'chessTable': {'Pos':RPoint(600,600),'Scale':1.0},
-    'button':{'button1':pygame.Rect(0,0,200,50),'button2':pygame.Rect(0,0,400,50),'pos1':RPoint(1000,300),'pos2':RPoint(1350,750),'pos3':RPoint(1600,800),'talkButton':pygame.Rect(1260,250,100,100)},
+    'button':{'button1':pygame.Rect(0,0,200,50),'button2':pygame.Rect(0,0,400,50),'button3':pygame.Rect(0,0,100,50),'pos1':RPoint(1000,300),'pos2':RPoint(1350,750),'pos3':RPoint(1600,800),'talkButton':pygame.Rect(1260,250,100,100),'pgn':RPoint(940,820)},
     'sys':{'FontSize':13,'ButtonFontSize':25,},
     'credit':{'Pos':RPoint(1000,400),'Button':pygame.Rect(1600,100,100,50)}
 }
@@ -204,7 +201,7 @@ game_geometry_n = {
 ##게임의 저작권을 설명하는 크레딧
 ##출시 후에는 제데로 된 링크로 바꾸어야 한다.
 credit = """
-The game's source code is opened for anyone under GNU GENERAL PUBLIC LICENSE Version 3 (GPL v3).
+The game's source code is opened for request under GNU GENERAL PUBLIC LICENSE Version 3 (GPL v3).
 Steamworks SDK is not linked with the whole code.
 The game uses stockfish (Open  Source Chess Engine) and python-chess library.
 the github source code link is https://github.com/Dano-Sato/Play-Chess-with-Lady-Bongcloud. current bgm is """
@@ -240,7 +237,7 @@ class Obj():
     think = 'chessgame-ai.think'
     hint = 'chessgame-ai.hint'
     configPath = 'chessgame.config'
-    default_config = {"Resolution":1920,"FullScreen":"FullScreen","Music":"Calm","Costume":"Normal","UserIsWhite":False,"Swapped":False,"Volume":1.0,"HintCount":0,"Board":chess.Board()} # config 정보를 저장
+    default_config = {"Resolution":1920,"FullScreen":"FullScreen","Music":"Calm","Costume":"Normal","UserIsWhite":False,"Swapped":False,"Volume":1.0,"HintCount":0,"Board":chess.Board(),"PGN":""} # config 정보를 저장
     config = {}
     AIcondition = 0.3
     hintCountMax = 4
@@ -341,14 +338,19 @@ def stockFishProcess(time,fen,path,bongcloudOpened,isBestMode):
     b = chess.Board(fen)
     ##봉클라우드를 위해 킹이 되돌아가는 무브를 제거한다.
     _topMoves=[]
-    for move in tMoves:
-        m = move["Move"]
-        s = m[:2]
-        e = m[2:4]
-        if str(b.piece_at(chess.parse_square(s))).upper()=="K" and e in ["e1","e8"]:
-            continue
-        else:
-            _topMoves.append(move)
+    if len(tMoves)>1:
+        for move in tMoves:
+            m = move["Move"]
+            s = m[:2]
+            e = m[2:4]
+            if str(b.piece_at(chess.parse_square(s))).upper()=="K" and e in ["e1","e8"]:
+                continue
+            else:
+                _topMoves.append(move)
+    else:
+        move = tMoves[-1] # Make Best Move
+        makeAIData(move,eval=eval,topMoves=_topMoves)
+        return
     
     if isBestMode:
         move = _topMoves[-1] # Make Best Move
@@ -690,7 +692,7 @@ class mainScene(Scene):
                 c = [Cs.white,Cs.black]
             else:
                 c = [Cs.black,Cs.white]
-            self.turnButton = textButton(turnText+t,Obj.game_geometry['button']['button2'],color=c[0],fontColor=c[1])    
+            self.turnButton = textButton(turnText+t,Obj.game_geometry['button']['button2'],color=c[0],fontColor=c[1],hoverMode=False)    
             self.turnButton.center = self.boardDisplay[4][4].geometryPos + 5*RPoint(0,Obj.game_geometry['board']['TileSize'])
             self.turnButton.update()
 
@@ -737,7 +739,16 @@ class mainScene(Scene):
 
     #'d2d4'와 같은 string으로 이동하는 함수이다.
     def moveByString(self,s):
-        
+
+        currentColor = Obj.config["Board"].fen().split()[1]
+        number = Obj.config["Board"].fullmove_number
+        if currentColor=='w':
+            number = 2*number-1
+        else:
+            number = 2*number
+
+        Obj.config["PGN"]+="{0}. {1} ".format(number,s)
+        self.moveButton.text = s
         if Obj.config["Board"].piece_at(chess.parse_square(s[2:4])):
             piece = str(Obj.config["Board"].piece_at(chess.parse_square(s[2:4])))
             Rs.playSound('chess-kill.wav',volume=Obj.pieceVolume[piece.upper()])
@@ -905,6 +916,9 @@ class mainScene(Scene):
         pygame.mouse.set_visible(False)
         Obj.cursor = imageObj("cursor.png",scale=0.5)
 
+            
+        
+
         self.proc = None
         #Obj.config["UserIsWhite"] = False
         self.legalMoveObjects = []
@@ -999,6 +1013,8 @@ class mainScene(Scene):
             def f():
                 # 보드 초기화
                 Obj.config["Board"]=chess.Board()
+                Obj.config["PGN"]=""
+                self.moveButton.text = ""
                 self.raiseRematch = False
                 Obj.config["UserIsWhite"] = colorIsWhite
                 self.makeBoard(False)
@@ -1128,6 +1144,17 @@ class mainScene(Scene):
         self.debugObj = longTextObj('',pos=(0,0),textWidth=200)
         
         self.makeTurnButton()
+        self.moveButton = textButton("",Obj.game_geometry['button']['button3'],color=Cs.black,fontColor=Cs.grey,hoverMode=False)
+        self.moveButton.center = self.turnButton.geometryCenter + RPoint(Obj.game_geometry['button']['button3'].width*3,0)
+
+        if Obj.config["PGN"]!="":
+            lastMove = Obj.config["PGN"].split()[-1]
+            self.moveButton.text = lastMove
+
+        self.moveButton.update()
+
+
+
         self.turnButtonTimer = 0
         
         self.ladySays(random.choice(talkScript['greeting']))
@@ -1354,6 +1381,7 @@ class mainScene(Scene):
         if self.promotionGUI:
             self.promotionGUI.update()
 
+        self.moveButton.update()
             
         ## DEBUG ##
         if Rs.userJustLeftClicked():
@@ -1414,6 +1442,7 @@ class mainScene(Scene):
 
 
         self.turnButton.draw()
+        self.moveButton.draw()
         self.buttonLayout.draw()
         if self.hintButton.collideMouse():
             self.hintCounterObj.draw()
@@ -1475,6 +1504,7 @@ class mainScene(Scene):
 class configScene(Scene):
     def initOnce(self):
         ##TODO: Make Config Scene Objects ##
+        print(Obj.config["PGN"])
                 
         t = Obj.game_geometry['board']['TileSize']
         w,h = Rs.screen.get_rect().size

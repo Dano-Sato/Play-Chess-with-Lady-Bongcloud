@@ -41,5 +41,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['gameIcon_32.ico'],
+    icon=['app.ico'],
 )
