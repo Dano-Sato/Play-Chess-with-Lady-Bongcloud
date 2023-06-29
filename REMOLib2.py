@@ -1,9 +1,8 @@
 ##Pygames 모듈을 리패키징하는 REMO Library 모듈##
-import os
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+from os import environ
+environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 
 import pygame,time,math,copy,pickle,random
-from PySide2.QtCore import QThread, Slot, Signal
 import sys,os
 try:
     import pygame.freetype as freetype
@@ -433,8 +432,6 @@ class Rs:
             font = Rs.__sysFontName
         if size == None:
             size = Rs.__sysSize
-        if type(pos) != tuple:
-            pos = pos.toTuple()
 
         '''
         if font in list(Rs.__fontPipeline):
@@ -449,22 +446,9 @@ class Rs:
         '''
         return Rs.getFont(font).render_to(Rs.screen, pos, text, color,bcolor,size=size,rotation=rotation,style=style)
 
-    @classmethod
-    def drawBenchmark(cls,pos=RPoint(0,0),color=Cs.white):
-        p1 = RPoint(20,10)+pos
-        p2 = RPoint(70,10)+pos
-        p3 = RPoint(10,30)+pos
-        s = str(int(REMOGame.benchmark_fps["Draw"]))
-        Rs.drawString(s,p1,color=color)
-        s = str(int(REMOGame.benchmark_fps["Update"]))
-        Rs.drawString(s,p2,color=color)
-
-        Rs.drawString("Draw Update",p3,color=color)
-
     ###Path Pipeline###
     __pathData={}
     __pathPipeline={}
-    __pathException=[".git"]
     @classmethod
     def _buildPath(cls):
         Rs.__pathData={}
@@ -476,12 +460,6 @@ class Rs:
                 if file[0]==".": # 숨김 파일은 기본적으로 제외한다.
                     continue
                 path = os.path.join(currentpath, file)
-                _except = False
-                for ex in Rs.__pathException: ## 제외어가 들어간 경우 제외한다. 예를 들어 .git 관련 파일들은 제외
-                    if ex in path:
-                        _except = True
-                if _except:
-                    continue
                 extension = path.split('.')[-1]
                 if extension in list(Rs.__pathData):
                     Rs.__pathData[extension].append(path)
@@ -663,9 +641,7 @@ class Rs:
     ##현재 신을 교체해준다.
     @classmethod
     def setCurrentScene(cls,scene,skipInit=False):
-        REMOGame.drawLock = True
         REMOGame.setCurrentScene(scene,skipInit)
-        REMOGame.drawLock = False
 
     ##디스플레이 아이콘을 바꾼다.
     @classmethod
@@ -673,14 +649,6 @@ class Rs:
         img = Rs.getImage(img)
         pygame.display.set_icon(img)
 
-    ##드로우 쓰레드에 락을 걸어야 할 때 사용하는 함수
-    @classmethod
-    def acquireDrawLock(cls):
-        REMOGame.drawLock = True 
-    ##락 해제
-    @classmethod
-    def ReleaseDrawLock(cls):
-        REMOGame.drawLock = False
         
         
     ##File Input/Output
@@ -695,7 +663,6 @@ class Rs:
         
 
 
-Rs._buildPath() ## 경로 파이프라인을 구성한다.
 
 class Scene(ABC):
 
@@ -724,49 +691,19 @@ class Scene(ABC):
         #draw childs
         return
 
-
-
-#target_fps에 맞게 그리기 함수를 호출하는 스레드
-
-class drawThread(QThread):
-
-    def __init__(self):
-        super().__init__()
-    def run(self):
-        prev_time = time.time()
-        benchmarkTimer = time.time()
-        while REMOGame._lastStartedWindow.running:
-            if not REMOGame.drawLock:
-                try:
-                    Rs.fillScreen(Cs.white)
-                    REMOGame._lastStartedWindow.draw()
-                    REMOGame._lastStartedWindow.paint()
-                except Exception as err:
-                    print(f"Unexpected {err=}, {type(err)=}")
-                ##Timing code, set frame to target_fps(60fps)
-                curr_time = time.time()#so now we have time after processing
-                diff = curr_time - prev_time#frame took this much time to process and render
-                if time.time()-benchmarkTimer>0.5:
-                    ##현재 나오는 프레임(fps)을 벤치마크한다.
-                    REMOGame.benchmark_fps["Draw"] = 1.0/(diff)#fps is based on total time ("processing" diff time + "wasted" delay time)
-                    benchmarkTimer = time.time()
-                prev_time = curr_time
-
 ## Base Game class
 class REMOGame:
     currentScene = Scene()
-    __drawThread = drawThread()
-    benchmark_fps = {"Draw":0,"Update":0}
-    drawLock = False ## 신 교체 중임을 알리는 인자
-    __showBenchmark = False
-    _lastStartedWindow = None
+
+    __lastStartedWindow = None
     def __init__(self,screen_size=(1920,1080),fullscreen=True,*,caption="REMOGame window"):
+        Rs._buildPath() ## 경로 파이프라인을 구성한다.
         pygame.init()
         Rs.__fullScreen=fullscreen
         Rs.screen_size = screen_size
         Rs.updateScreen()
         pygame.display.set_caption(caption)
-        REMOGame._lastStartedWindow = self
+        REMOGame.__lastStartedWindow = self
         # Fill the background with white
         Rs.screen.fill(Cs.white)
 
@@ -777,7 +714,7 @@ class REMOGame:
     #게임이 시작했는지 여부를 확인하는 함수
     @classmethod 
     def gameStarted(cls):
-        return REMOGame._lastStartedWindow != None        
+        return REMOGame.__lastStartedWindow != None        
     #classmethod로 기획된 이유는 임의의 상황에서 편하게 호출하기 위해서이다.
     # initiation 과정을 스킵할 수 있음
     @classmethod
@@ -789,32 +726,21 @@ class REMOGame:
     def update(self):
         REMOGame.currentScene.update()
         return
-    
-    @classmethod
-    def showBenchmark(cls):
-        REMOGame.__showBenchmark = True
 
     def draw(self):
         REMOGame.currentScene.draw()
         Rs._draw()
-        if REMOGame.__showBenchmark:
-            Rs.drawBenchmark()
         return
     
     @classmethod
     def exit(cls):
-        REMOGame._lastStartedWindow.running = False
-        REMOGame.__drawThread.terminate()
+        REMOGame.__lastStartedWindow.running = False
         #pygame.quit()
 
     #Game Running Method
     def run(self):
         self.running = True
-        REMOGame.__drawThread = drawThread()
-        REMOGame.__drawThread.start()
         prev_time = time.time()
-        benchmarkTimer = time.time()
-
         while self.running:
             Rs._update()
             # Did the user click the window close button?
@@ -822,21 +748,18 @@ class REMOGame:
                 if event.type == pygame.QUIT:
                     REMOGame.exit()
             self.update()
-
+            Rs.fillScreen(Cs.white)
+            self.draw()
+            self.paint()
             Rs._updateState()
-
-
             ##Timing code, set frame to target_fps(60fps)
             curr_time = time.time()#so now we have time after processing
             diff = curr_time - prev_time#frame took this much time to process and render
             delay = max(1.0/Rs.target_fps - diff, 0)#if we finished early, wait the remaining time to desired fps, else wait 0 ms!
             time.sleep(delay)
-            if time.time()-benchmarkTimer>0.5:
-                ##현재 나오는 프레임(fps)을 벤치마크한다.
-                REMOGame.benchmark_fps["Update"] = 1.0/(delay + diff)#fps is based on total time ("processing" diff time + "wasted" delay time)
-                benchmarkTimer = time.time()
-
+            fps = 1.0/(delay + diff)#fps is based on total time ("processing" diff time + "wasted" delay time)
             prev_time = curr_time
+            #pygame.display.set_caption("{0}: {1:.2f}".format(title, fps))
 
     def paint(self):
         pygame.display.update()
@@ -921,8 +844,6 @@ class graphicObj():
 
     #Could be replaced
     def draw(self):
-        if self.alpha==0: ## 알파값이 0일경우는 그리지 않는다
-            return
         alpha_graphic = self.graphic.convert_alpha()
         alpha_graphic.set_alpha(self.alpha)
         Rs.screen.blit(alpha_graphic,self.geometry)

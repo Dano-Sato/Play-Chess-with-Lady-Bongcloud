@@ -185,7 +185,9 @@ talkScript = {
             "It invites us to adapt and think differently.",
             "It adds an interesting twist to the game.",
             "It adds a touch of excitement, doesn't it?",                                                
-            ]
+            ],
+    'winning':["Looks like you don't want to play game now, sir."
+    ]
 }
 game_geometry_n = {
     'lady':{'Pos':RPoint(1250,0),'Scale':0.7,'Hand':1.0,'breasts':pygame.Rect(1400,530,270,150)},   
@@ -310,6 +312,7 @@ def stockFishHintProcess(fen,path):
     if len(l)>0:
         bestMove = l[0]
         makeAIHintData(bestMove["Move"],fen,path=Obj.hint)
+        print(bestMove)
                 
 def stockFishProcess(time,fen,path,bongcloudOpened,isBestMode):
     color = fen.split(' ')[1]
@@ -705,6 +708,7 @@ class mainScene(Scene):
             
             
         Obj.config["Board"].push_san(s)
+        Rs.acquireDrawLock()
         self.updateBoard()
         mainScene.saveConfig()
 
@@ -721,6 +725,7 @@ class mainScene(Scene):
             self.lastMovedObj.pos = delta
             self.boardDisplay[j][i].chessObj.pos=delta
         self.boardDisplay[j][i].childs = self.boardDisplay[j][i].childs[::-1]
+        Rs.ReleaseDrawLock()
 
         return [i,j]
 
@@ -780,6 +785,12 @@ class mainScene(Scene):
                     move = data['Move']['Move']
                     cur_cp = data['Move']['Centipawn']
                     mate = data['Move']['Mate']
+                    if abs(cur_cp)>800 and not Obj.config["Swapped"]:
+                        self.swappedColorTimer=25 ## 컬러스왑 불가
+                        Obj.config["Swapped"]=True
+                        ##TODO: 
+                        self.ladySays(random.choice(talkScript['winning']))
+
                     if not self.ladyIsOnMate and mate!=None:
                         self.ladyIsOnMate = True
                         self.swappedColorTimer=25 ## 컬러스왑 불가
@@ -961,6 +972,7 @@ class mainScene(Scene):
         
         def rematch(colorIsWhite):
             def f():
+                Rs.acquireDrawLock()
                 # 보드 초기화
                 Obj.config["Board"]=chess.Board()
                 Obj.config["PGN"]=""
@@ -978,6 +990,7 @@ class mainScene(Scene):
                 self.ladySays(random.choice(talkScript['newgame']))
                 Obj.renewCondition()
                 self.ladyBestMode = False
+                Rs.ReleaseDrawLock()
             return f
         self.rematchBlackButton.connect(rematch(False))
         self.rematchWhiteButton.connect(rematch(True))
@@ -1249,7 +1262,7 @@ class mainScene(Scene):
         #체스말 부드럽게 움직이기 위한 코드
         if self.lastMovedObj != None and self.lastMovedObj.pos != RPoint(0,0):
             arrival =RPoint(Obj.game_geometry['board']['TileSize']//2,Obj.game_geometry['board']['TileSize']//2)
-            self.lastMovedObj.center = (self.lastMovedObj.center-arrival)*0.7+arrival
+            self.lastMovedObj.center = (self.lastMovedObj.center-arrival)*0.8+arrival
             if hasattr(self.lastMovedObj.parent,"chessObj"):
                 self.lastMovedObj.parent.chessObj.center = (self.lastMovedObj.center-arrival)*0.7+arrival
                 if self.lastMovedObj.parent.chessObj.center.distance(arrival)<5:
@@ -1336,10 +1349,11 @@ class mainScene(Scene):
         self.moveButton.update()
             
         ## DEBUG ##
-        if Rs.userJustLeftClicked():
-            print(Rs.mousePos())
+        #if Rs.userJustLeftClicked():
+            #print(Rs.mousePos())
         self.debugObj.pos = Rs.mousePos()+RPoint(20,20)
         self.debugObj.text = str(Rs.mousePos()) ## DEBUG
+        Obj.cursor.pos = Rs.mousePos()
 
         return
     def draw(self):
@@ -1448,7 +1462,6 @@ class mainScene(Scene):
             self.talkObj.draw()
         ## DEBUG ##
         #self.debugObj.draw() ##DEBUG
-        Obj.cursor.pos = Rs.mousePos()
         Obj.cursor.draw()
 
         return
@@ -1663,7 +1676,8 @@ class Scenes:
 if __name__=="__main__":
     import multiprocessing
     multiprocessing.freeze_support()
-
+    REMOGame.showBenchmark()
+    Rs.target_fps = 60
     Obj.stockfish.set_depth(20)
     Obj.stockfish.set_skill_level(20)
     print(Obj.stockfish.get_parameters())
