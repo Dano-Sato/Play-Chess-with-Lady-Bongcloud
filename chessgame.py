@@ -785,7 +785,7 @@ class mainScene(Scene):
                     move = data['Move']['Move']
                     cur_cp = data['Move']['Centipawn']
                     mate = data['Move']['Mate']
-                    if abs(cur_cp)>800 and not Obj.config["Swapped"]:
+                    if cur_cp != None and abs(cur_cp)>800 and not Obj.config["Swapped"]:
                         self.swappedColorTimer=25 ## 컬러스왑 불가
                         Obj.config["Swapped"]=True
                         ##TODO: 
