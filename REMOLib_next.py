@@ -432,6 +432,10 @@ class Rs:
             font = Rs.__sysFontName
         if size == None:
             size = Rs.__sysSize
+        if type(pos) != tuple:
+            pos = pos.toTuple()
+        if type(text) != str:
+            text = str(text)
 
         '''
         if font in list(Rs.__fontPipeline):
@@ -446,9 +450,22 @@ class Rs:
         '''
         return Rs.getFont(font).render_to(Rs.screen, pos, text, color,bcolor,size=size,rotation=rotation,style=style)
 
+    @classmethod
+    def drawBenchmark(cls,pos=RPoint(0,0),color=Cs.white):
+        p1 = RPoint(20,10)+pos
+        p2 = RPoint(70,10)+pos
+        p3 = RPoint(10,30)+pos
+        s = str(int(REMOGame.benchmark_fps["Draw"]))
+        Rs.drawString(s,p1,color=color)
+        s = str(int(REMOGame.benchmark_fps["Update"]))
+        Rs.drawString(s,p2,color=color)
+
+        Rs.drawString("Draw Update",p3,color=color)
+
     ###Path Pipeline###
     __pathData={}
     __pathPipeline={}
+    __pathException=[".git"]
     @classmethod
     def _buildPath(cls):
         Rs.__pathData={}
@@ -460,6 +477,12 @@ class Rs:
                 if file[0]==".": # 숨김 파일은 기본적으로 제외한다.
                     continue
                 path = os.path.join(currentpath, file)
+                _except = False
+                for ex in Rs.__pathException: ## 제외어가 들어간 경우 제외한다. 예를 들어 .git 관련 파일들은 제외
+                    if ex in path:
+                        _except = True
+                if _except:
+                    continue
                 extension = path.split('.')[-1]
                 if extension in list(Rs.__pathData):
                     Rs.__pathData[extension].append(path)
@@ -600,6 +623,8 @@ class Rs:
     ##Draw Function##
     
     __graphicPipeline = {}
+    __spritePipeline = {}
+    graphicCache ={}
     
     def drawArrow(start, end,*,lcolor=Cs.white, tricolor=Cs.white,trirad=40, thickness=20,alpha=255):
         if type(start)==RPoint:
@@ -641,7 +666,9 @@ class Rs:
     ##현재 신을 교체해준다.
     @classmethod
     def setCurrentScene(cls,scene,skipInit=False):
+        REMOGame.drawLock = True
         REMOGame.setCurrentScene(scene,skipInit)
+        REMOGame.drawLock = False
 
     ##디스플레이 아이콘을 바꾼다.
     @classmethod
@@ -649,6 +676,14 @@ class Rs:
         img = Rs.getImage(img)
         pygame.display.set_icon(img)
 
+    ##드로우 쓰레드에 락을 걸어야 할 때 사용하는 함수
+    @classmethod
+    def acquireDrawLock(cls):
+        REMOGame.drawLock = True 
+    ##락 해제
+    @classmethod
+    def ReleaseDrawLock(cls):
+        REMOGame.drawLock = False
         
         
     ##File Input/Output
@@ -663,6 +698,7 @@ class Rs:
         
 
 
+Rs._buildPath() ## 경로 파이프라인을 구성한다.
 
 class Scene(ABC):
 
@@ -691,19 +727,49 @@ class Scene(ABC):
         #draw childs
         return
 
+
+
+#target_fps에 맞게 그리기 함수를 호출하는 스레드
+
+class drawThread():
+
+    def __init__(self):
+        super().__init__()
+    def run(self):
+        prev_time = time.time()
+        benchmarkTimer = time.time()
+        while REMOGame._lastStartedWindow.running:
+            if not REMOGame.drawLock:
+                try:
+                    Rs.fillScreen(Cs.white)
+                    REMOGame._lastStartedWindow.draw()
+                    REMOGame._lastStartedWindow.paint()
+                except Exception as err:
+                    print(f"Unexpected {err=}, {type(err)=}")
+                ##Timing code, set frame to target_fps(60fps)
+                curr_time = time.time()#so now we have time after processing
+                diff = curr_time - prev_time#frame took this much time to process and render
+                if time.time()-benchmarkTimer>0.5:
+                    ##현재 나오는 프레임(fps)을 벤치마크한다.
+                    REMOGame.benchmark_fps["Draw"] = 1.0/(diff)#fps is based on total time ("processing" diff time + "wasted" delay time)
+                    benchmarkTimer = time.time()
+                prev_time = curr_time
+
 ## Base Game class
 class REMOGame:
     currentScene = Scene()
-
-    __lastStartedWindow = None
+    __drawThread = drawThread()
+    benchmark_fps = {"Draw":0,"Update":0}
+    drawLock = False ## 신 교체 중임을 알리는 인자
+    __showBenchmark = False
+    _lastStartedWindow = None
     def __init__(self,screen_size=(1920,1080),fullscreen=True,*,caption="REMOGame window"):
-        Rs._buildPath() ## 경로 파이프라인을 구성한다.
         pygame.init()
         Rs.__fullScreen=fullscreen
         Rs.screen_size = screen_size
         Rs.updateScreen()
         pygame.display.set_caption(caption)
-        REMOGame.__lastStartedWindow = self
+        REMOGame._lastStartedWindow = self
         # Fill the background with white
         Rs.screen.fill(Cs.white)
 
@@ -714,7 +780,7 @@ class REMOGame:
     #게임이 시작했는지 여부를 확인하는 함수
     @classmethod 
     def gameStarted(cls):
-        return REMOGame.__lastStartedWindow != None        
+        return REMOGame._lastStartedWindow != None        
     #classmethod로 기획된 이유는 임의의 상황에서 편하게 호출하기 위해서이다.
     # initiation 과정을 스킵할 수 있음
     @classmethod
@@ -726,21 +792,34 @@ class REMOGame:
     def update(self):
         REMOGame.currentScene.update()
         return
+    
+    @classmethod
+    def showBenchmark(cls):
+        REMOGame.__showBenchmark = True
 
     def draw(self):
         REMOGame.currentScene.draw()
         Rs._draw()
+        if REMOGame.__showBenchmark:
+            Rs.drawBenchmark()
         return
     
     @classmethod
     def exit(cls):
-        REMOGame.__lastStartedWindow.running = False
+        REMOGame._lastStartedWindow.running = False
+        REMOGame.__drawThread.join()
         #pygame.quit()
 
     #Game Running Method
     def run(self):
         self.running = True
+        import threading
+        REMOGame.__drawThread = threading.Thread(target=drawThread().run)
+        REMOGame.__drawThread.start()
+
         prev_time = time.time()
+        benchmarkTimer = time.time()
+
         while self.running:
             Rs._update()
             # Did the user click the window close button?
@@ -748,18 +827,21 @@ class REMOGame:
                 if event.type == pygame.QUIT:
                     REMOGame.exit()
             self.update()
-            Rs.fillScreen(Cs.white)
-            self.draw()
-            self.paint()
+
             Rs._updateState()
+
+
             ##Timing code, set frame to target_fps(60fps)
             curr_time = time.time()#so now we have time after processing
             diff = curr_time - prev_time#frame took this much time to process and render
             delay = max(1.0/Rs.target_fps - diff, 0)#if we finished early, wait the remaining time to desired fps, else wait 0 ms!
             time.sleep(delay)
-            fps = 1.0/(delay + diff)#fps is based on total time ("processing" diff time + "wasted" delay time)
+            if time.time()-benchmarkTimer>0.5:
+                ##현재 나오는 프레임(fps)을 벤치마크한다.
+                REMOGame.benchmark_fps["Update"] = 1.0/(delay + diff)#fps is based on total time ("processing" diff time + "wasted" delay time)
+                benchmarkTimer = time.time()
+
             prev_time = curr_time
-            #pygame.display.set_caption("{0}: {1:.2f}".format(title, fps))
 
     def paint(self):
         pygame.display.update()
@@ -774,6 +856,7 @@ class graphicObj():
     @pos.setter
     def pos(self,pos):
         self._pos = Rs.Point(pos)
+        self._clearGraphicCache()
         
     def moveTo(self,p2,speed):
         self.pos = self.pos.moveTo(p2,speed)
@@ -798,6 +881,7 @@ class graphicObj():
     def rect(self,rect):
         self.graphic = pygame.transform.smoothscale(self.graphic_n,(rect[2],rect[3]))
         self._pos = RPoint(rect[0],rect[1])
+        self._clearGraphicCache()
 
     #geometry란 object가 실제로 screen상에서 차지하는 영역을 의미합니다.
     #getter only입니다.
@@ -820,44 +904,114 @@ class graphicObj():
         if self.parent:
             return self.geometryPos+RPoint(self.rect.w,self.rect.h)*0.5
         return self.center
-        
     
+    #object의 차일드들의 영역을 포함한 전체 영역을 계산 (캐싱에 활용)
+    @property
+    def boundary(self):
+        if id(self) in Rs.graphicCache:
+            cache,pos = Rs.graphicCache[id(self)]
+            return pygame.Rect(pos.x(),pos.y(),cache.get_rect().w,cache.get_rect().h)
+
+        r = self.geometry
+        for c in self.childs:
+            r = r.union(c.boundary)
+        return r
+    
+    @property
+    def alpha(self):
+        return self._alpha
+    
+    @alpha.setter
+    def alpha(self,alpha):
+        self._alpha = alpha
+        self._clearGraphicCache()
+
+    @property
+    def graphic(self):
+        return self._graphic
+    
+    ##그래픽이 변경되면 캐시를 청소한다.
+    @graphic.setter
+    def graphic(self,graphic):
+        self._graphic = graphic
+        self._clearGraphicCache()
+
+
+    ##그래픽 캐시 관련 함수 ##
+    #오브젝트의 캐시 이미지를 만든다.
+    def _getCache(self):
+        if id(self) in Rs.graphicCache:
+            return Rs.graphicCache[id(self)]
+
+        r = self.boundary
+        bp = RPoint(r.x,r.y) #position of boundary
+        cache = pygame.Surface((r.w,r.h),pygame.SRCALPHA,32).convert_alpha()
+        cache.blit(self.graphic,(self.geometryPos-bp).toTuple())
+        for c in self.childs:
+            ccache,cpos = c._getCache()
+            p = cpos-bp
+            cache.blit(ccache,p.toTuple())
+        cache.set_alpha(self.alpha)
+        return [cache,bp]
+
+    #object의 차일드를 포함한 그래픽을 캐싱한다.
+    def _cacheGraphic(self):
+        Rs.graphicCache[id(self)]=self._getCache()
+
+    ##캐시 청소 (그래픽을 새로 그리거나 위치를 옮길 때 캐시 청소가 필요)    
+    def _clearGraphicCache(self):
+        if hasattr(self,"parent") and self.parent:
+            self.parent._clearGraphicCache()
+        if id(self) in Rs.graphicCache:
+            Rs.graphicCache.pop(id(self))
+
+    ##객체 소멸시 캐시청소를 해야 한다.
+    def __del__(self):
+        self._clearGraphicCache()
+    ###
+
     def __init__(self):
         self.graphic = pygame.Surface((0,0))
         self.graphic_n = pygame.Surface((0,0))
         self._pos = RPoint(0,0)
         self.childs = []
         self.parent = None
-        self.alpha = 255
+        self._alpha = 255
         return
     
     #Parent - Child 연결관계를 만듭니다.
     def setParent(self,_parent):
         if self.parent !=None:
             self.parent.childs.remove(self)
+            self.parent._clearGraphicCache()
+
         self.parent = _parent
         if _parent != None:
             _parent.childs.append(self)
             if hasattr(_parent,'adjustLayout'):
                 _parent.adjustLayout()
+        self._clearGraphicCache()
 
 
     #Could be replaced
     def draw(self):
-        alpha_graphic = self.graphic.convert_alpha()
-        alpha_graphic.set_alpha(self.alpha)
-        Rs.screen.blit(alpha_graphic,self.geometry)
-        for child in self.childs:
-            child.draw()
+        if self.alpha==0: ## 알파값이 0일경우는 그리지 않는다
+            return
+        if id(self) not in Rs.graphicCache:
+            self._cacheGraphic()
+        cache,p = self._getCache()
+        Rs.screen.blit(cache,p.toTuple())
 
     #Fill object with Color
     def fill(self,color,*,special_flags=pygame.BLEND_MAX):
         self.graphic_n.fill(color,special_flags=special_flags)
         self.graphic.fill(color,special_flags=special_flags)
+        self._clearGraphicCache()
         
     def colorize(self,color,alpha=255):
         self.fill((0,0,0,alpha),special_flags=pygame.BLEND_RGBA_MULT)
         self.fill(color[0:3]+(0,),special_flags=pygame.BLEND_RGBA_ADD)
+        self._clearGraphicCache()
         
     def collidepoint(self,p):
         return self.geometry.collidepoint(Rs.Point(p).toTuple())
@@ -865,7 +1019,6 @@ class graphicObj():
         return self.collidepoint(Rs.mousePos())
     def isJustClicked(self):
         return Rs.userJustLeftClicked() and self.collidepoint(Rs.mousePos())
-    
 #image file Object         
 class imageObj(graphicObj):
     def __init__(self,_imgPath=None,_rect=None,*,pos=None,angle=0,scale=1):
@@ -893,7 +1046,7 @@ class imageObj(graphicObj):
     def angle(self,angle):
         #originalRect = self.graphic_n.get_rect()
         #self.graphic = pygame.transform.smoothscale(self.graphic_n,(int(originalRect.w*self.scale),int(originalRect.h*self.scale)))
-        self._angle = int(angle)    
+        self._angle = int(angle)
         self.graphic = pygame.transform.rotozoom(self.graphic_n,self.angle,self.scale)
     @property
     def scale(self):
@@ -902,7 +1055,7 @@ class imageObj(graphicObj):
     def scale(self,scale):
         #originalRect = self.graphic_n.get_rect()
         #self.graphic = pygame.transform.smoothscale(self.graphic_n,(int(originalRect.w*scale),int(originalRect.h*scale)))
-        self._scale = scale
+        self._scale = round(scale,2)
         self.graphic = pygame.transform.rotozoom(self.graphic_n,self.angle,self.scale)
 
     ##이미지 교환 함수     
@@ -918,12 +1071,12 @@ class imageObj(graphicObj):
 ##Rectangle Object. could be rounded
 class rectObj(graphicObj):
     def _makeRect(self,rect,color,edge,radius):
-        self.graphic = pygame.Surface((rect.w,rect.h),pygame.SRCALPHA,32).convert_alpha()
-        pygame.draw.rect(self.graphic,Cs.apply(color,0.7),pygame.Rect(0,0,rect.w,rect.h),border_radius=radius+1)
-        pygame.draw.rect(self.graphic,Cs.apply(color,0.85),pygame.Rect(edge,edge,rect.w-2*edge,rect.h-2*edge),border_radius=radius+2)
+        self.graphic_n = pygame.Surface((rect.w,rect.h),pygame.SRCALPHA,32).convert_alpha()
+        pygame.draw.rect(self.graphic_n,Cs.apply(color,0.7),pygame.Rect(0,0,rect.w,rect.h),border_radius=radius+1)
+        pygame.draw.rect(self.graphic_n,Cs.apply(color,0.85),pygame.Rect(edge,edge,rect.w-2*edge,rect.h-2*edge),border_radius=radius+2)
 
-        pygame.draw.rect(self.graphic,color,pygame.Rect(2*edge,2*edge,rect.w-4*edge,rect.h-4*edge),border_radius=radius)
-        self.graphic_n = copy.copy(self.graphic)
+        pygame.draw.rect(self.graphic_n,color,pygame.Rect(2*edge,2*edge,rect.w-4*edge,rect.h-4*edge),border_radius=radius)
+        self.graphic = self.graphic_n.copy()
         
     def __init__(self,rect,*,radius=None,pad=0,edge=0,color=Cs.white,alpha=255):
         super().__init__()
@@ -949,7 +1102,7 @@ class rectObj(graphicObj):
 
     @radius.setter
     def radius(self,radius):
-        temp = copy.copy(self.rect)
+        temp = self.rect.copy()
         self._radius = radius
         self._makeRect(temp,self.color,self.edge,radius)
 
@@ -959,7 +1112,7 @@ class rectObj(graphicObj):
 
     @color.setter
     def color(self,color):
-        temp = copy.copy(self.rect)
+        temp = self.rect.copy()
         self._color = color
         self._makeRect(temp,color,self.edge,self.radius)
 
@@ -991,6 +1144,8 @@ class textObj(graphicObj):
         self.__color = _color
         self.graphic_n = Rs.getFont(self.__font).render(self.__text,self.__color,None,size=self.__size,rotation=self.__angle)[0].convert_alpha()
         self.rect = copy.copy(temp)
+        self._clearGraphicCache()
+
     @property
     def size(self):
         return self.__size
@@ -999,6 +1154,7 @@ class textObj(graphicObj):
         self.__size = _size
         self.graphic_n = Rs.getFont(self.__font).render(self.__text,self.__color,None,size=self.__size,rotation=self.__angle)[0].convert_alpha()
         self.graphic = Rs.getFont(self.__font).render(self.__text,self.__color,None,size=self.__size,rotation=self.__angle)[0].convert_alpha()
+
     @property
     def angle(self):
         return self.__angle
@@ -1007,6 +1163,7 @@ class textObj(graphicObj):
         self.__angle = _angle
         self.graphic_n = Rs.getFont(self.__font).render(self.__text,self.__color,None,size=self.__size,rotation=self.__angle)[0].convert_alpha()
         self.graphic = Rs.getFont(self.__font).render(self.__text,self.__color,None,size=self.__size,rotation=self.__angle)[0].convert_alpha()
+
     @property
     def font(self):
         return self.__font
@@ -1015,6 +1172,7 @@ class textObj(graphicObj):
         self.__font = _font
         self.graphic_n = Rs.getFont(self.__font).render(self.__text,self.__color,None,size=self.__size,rotation=self.__angle)[0].convert_alpha()
         self.graphic = Rs.getFont(self.__font).render(self.__text,self.__color,None,size=self.__size,rotation=self.__angle)[0].convert_alpha()
+
     @property
     def text(self):
         return self.__text
@@ -1035,12 +1193,12 @@ class spriteObj(imageObj):
         super(imageObj,self).__init__()
         self.tick = tick # 스프라이트 교환주기. 1프레임마다 다음프레임으로 교체
         self.curTick = 0 # 스프라이트의 현재 틱
-        if startFrame==None:
-            self.frame = fromSprite # 스프라이트 현재 프레임. 시작 프레임에서부터 시작한다.
-        else:
-            self.frame = startFrame
+        self._frame = 0
         self.mode = mode # 기본 애니메이션 모드 세팅은 루프를 하도록.
         self.sprites = [] #스프라이트들의 집합
+        
+
+        ##스프라이트 집합을 만든다.
         if _imageSource:
             if type(_imageSource) == str: #SpriteSheet를 인자로 받을 경우
                 sheet = Rs.getImage(_imageSource)
@@ -1052,7 +1210,6 @@ class spriteObj(imageObj):
             else:
                 for image in _imageSource:
                     self.sprites.append(Rs.getImage(image))
-        self.graphic_n = self.sprites[self.frame]
         '''
         if _rect:
             self.rect = _rect
@@ -1074,6 +1231,23 @@ class spriteObj(imageObj):
             self.toSprite = len(self.sprites)-1
         if _rect!=None:
             self.rect = _rect        
+        if startFrame==None:
+            self.frame = fromSprite # 스프라이트 현재 프레임. 시작 프레임에서부터 시작한다.
+        else:
+            self.frame = startFrame
+
+    @property
+    def frame(self):
+        return self._frame
+    
+    @frame.setter
+    def frame(self,frame):
+        if frame > self.toSprite:
+            frame = self.fromSprite
+        self._frame=frame
+        self.graphic_n = self.sprites[self.frame]
+        self.graphic = pygame.transform.rotozoom(self.graphic_n,self.angle,self.scale)
+
 
     ##스프라이트 재생이 끝났는지 확인한다.
     #루프모드일 경우 항상 거짓 반환
@@ -1092,8 +1266,6 @@ class spriteObj(imageObj):
             self.curTick=0
             if self.mode == AnimationMode.Looped:
                 self.frame+=1
-                if self.frame > max:
-                    self.frame=self.fromSprite
             else:
                 if self.frame == max:
                     return
@@ -1120,14 +1292,8 @@ class layoutObj(graphicObj):
                 self.pos = RPoint(pos[0],pos[1])
             else:
                 self.pos = pos
-        temp = pad
         self.isVertical = isVertical
-        if self.isVertical:
-            def delta(c):
-                return RPoint(0,c.rect.h+spacing)
-        else:
-            def delta(c):
-                return RPoint(c.rect.w+spacing,0)
+
             
         for child in childs:
             child.setParent(self)
@@ -1138,16 +1304,7 @@ class layoutObj(graphicObj):
         if rect==pygame.Rect(0,0,0,0):
             rect = self.boundary
         
-    @property
-    def boundary(self):
-        width,height=self.pad.x(),self.pad.y()
-        if self.isVertical:
-            for child in self.childs:
-                height+=child.rect.h
-                if child != self.childs[-1]:
-                    height+=self.spacing
-                width=max(width,self.pad.x()+child.rect.w)
-        return pygame.Rect(self.pos.x(),self.pos.y(),width,height)
+
 
     #레이아웃 내부 객체들의 위치를 조정한다.
     def adjustLayout(self):
@@ -1165,6 +1322,7 @@ class layoutObj(graphicObj):
             else:
                 child.pos = self.pad
             lastChild = child
+        self._clearGraphicCache()
             
 
     def update(self):
@@ -1243,6 +1401,7 @@ class longTextObj(layoutObj):
         if type(pos) == tuple:
             pos = RPoint(pos[0],pos[1])
         super().__init__(pygame.Rect(pos.x(),pos.y(),0,0),childs=ObjList,spacing=size/4)
+        self._clearGraphicCache()
 
     #현재 textWidth에 의해 나눠질 text 집합을 불러온다.
     def getStringList(self,text):
@@ -1346,6 +1505,8 @@ class textButton(rectObj):
         self.shadow.rect = Rs.padRect(self.rect,20)
         self.func = func #clicked function
         self.alpha = alpha
+        self.textObj.setParent(self)
+
         self.update()
     @property
     def text(self):
@@ -1379,7 +1540,7 @@ class textButton(rectObj):
         if Rs.userJustLeftClicked() and self.collideMouse() and self.hoverMode:
             self.func()
         self.hoverRect.center = self.geometry.center
-        self.textObj.center = self.geometry.center
+        self.textObj.center = self.geometryCenter-self.geometryPos
         self.shadow1.center = Rs.Point(self.geometry.center)+RPoint(3,3)
         self.shadow.center = Rs.Point(self.geometry.center)+RPoint(0,10)
     def setAlpha(self,alpha):
@@ -1396,7 +1557,6 @@ class textButton(rectObj):
         super().draw()
         if self.hoverMode and self.collideMouse() and not Rs.userIsLeftClicking():
             self.hoverRect.draw()
-        self.textObj.draw()
     #버튼을 누르면 실행될 함수를 등록한다.
     def connect(self,func):
         self.func = func

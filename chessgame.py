@@ -327,10 +327,10 @@ def stockFishProcess(time,fen,path,bongcloudOpened,isBestMode):
                 return False
             return -100 < x["Centipawn"] < 300
     stockfish = Obj.stockfish
-    if random.random()>0.3:
+    if random.random()>Obj.AIcondition:
         stockfish.set_elo_rating(3000)
     else: # Dojitko Move
-        stockfish.set_elo_rating(Obj.AIcondition)
+        stockfish.set_elo_rating(1000)
     stockfish.set_fen_position(fen)
     
     eval = stockfish.get_evaluation()
@@ -350,10 +350,15 @@ def stockFishProcess(time,fen,path,bongcloudOpened,isBestMode):
                 continue
             else:
                 _topMoves.append(move)
-    else:
+    elif len(tMoves)==1:
         move = tMoves[-1] # Make Best Move
         makeAIData(move,eval=eval,topMoves=_topMoves)
         return
+    else: ## Ai 움직일 수 없음 (체크메이트 상태)
+        move = "resign" # Make Best Move
+        makeAIData(move,eval=eval,topMoves=_topMoves)
+        return
+
     
     if isBestMode:
         move = _topMoves[-1] # Make Best Move
@@ -708,7 +713,6 @@ class mainScene(Scene):
             
             
         Obj.config["Board"].push_san(s)
-        Rs.acquireDrawLock()
         self.updateBoard()
         mainScene.saveConfig()
 
@@ -725,7 +729,6 @@ class mainScene(Scene):
             self.lastMovedObj.pos = delta
             self.boardDisplay[j][i].chessObj.pos=delta
         self.boardDisplay[j][i].childs = self.boardDisplay[j][i].childs[::-1]
-        Rs.ReleaseDrawLock()
 
         return [i,j]
 
@@ -785,6 +788,8 @@ class mainScene(Scene):
                     move = data['Move']['Move']
                     cur_cp = data['Move']['Centipawn']
                     mate = data['Move']['Mate']
+                    if move == 'resign': ## AI 패배
+                        return
                     if cur_cp != None and abs(cur_cp)>800 and not Obj.config["Swapped"]:
                         self.swappedColorTimer=25 ## 컬러스왑 불가
                         Obj.config["Swapped"]=True
@@ -972,7 +977,6 @@ class mainScene(Scene):
         
         def rematch(colorIsWhite):
             def f():
-                Rs.acquireDrawLock()
                 # 보드 초기화
                 Obj.config["Board"]=chess.Board()
                 Obj.config["PGN"]=""
@@ -990,7 +994,6 @@ class mainScene(Scene):
                 self.ladySays(random.choice(talkScript['newgame']))
                 Obj.renewCondition()
                 self.ladyBestMode = False
-                Rs.ReleaseDrawLock()
             return f
         self.rematchBlackButton.connect(rematch(False))
         self.rematchWhiteButton.connect(rematch(True))
@@ -1281,6 +1284,11 @@ class mainScene(Scene):
             
             if Obj.config["Board"].is_checkmate():
                 t = "Checkmate"
+            elif Obj.config["Board"].is_stalemate():
+                t = "Stalemate"
+            elif Obj.config["Board"].is_variant_draw():
+                t = "Draw"
+
             else:
                 if self.isUserTurn():
                     t = "Your Turn"
@@ -1676,7 +1684,6 @@ class Scenes:
 if __name__=="__main__":
     import multiprocessing
     multiprocessing.freeze_support()
-    REMOGame.showBenchmark()
     Rs.target_fps = 60
     Obj.stockfish.set_depth(20)
     Obj.stockfish.set_skill_level(20)
