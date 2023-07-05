@@ -788,13 +788,14 @@ class mainScene(Scene):
                     move = data['Move']['Move']
                     cur_cp = data['Move']['Centipawn']
                     mate = data['Move']['Mate']
+                    winning = False
                     if move == 'resign': ## AI 패배
                         return
                     if cur_cp != None and abs(cur_cp)>800 and not Obj.config["Swapped"]:
                         self.swappedColorTimer=25 ## 컬러스왑 불가
                         Obj.config["Swapped"]=True
-                        ##TODO: 
                         self.ladySays(random.choice(talkScript['winning']))
+                        winning = True
 
                     if not self.ladyIsOnMate and mate!=None:
                         self.ladyIsOnMate = True
@@ -834,13 +835,14 @@ class mainScene(Scene):
                             check_better = -check_better
                         if check_better>10:
                             r = min(1,check_better/150)
-                            if random.random()<r:
+                            if random.random()<r and not winning:
                                 self.ladySays(random.choice(talkScript['praise']))
                         elif check_better<-100:
                             #Lady가 실제로 응징하거나, 일정확률로 블런더 출력
-                            if abs(cp-cur_cp)<30 or random.random()<0.2:
-                                self.ladySays(random.choice(talkScript['blunder']))
-                                self.showSmile=True
+                            if not winning:
+                                if abs(cp-cur_cp)<30 or random.random()<0.2:
+                                    self.ladySays(random.choice(talkScript['blunder']))
+                                    self.showSmile=True
                         
                     Rs.playSound('move-chess.wav')
                     self.ladyHandTimer=30
