@@ -794,7 +794,8 @@ class mainScene(Scene):
                     if cur_cp != None and abs(cur_cp)>800 and not Obj.config["Swapped"]:
                         self.swappedColorTimer=25 ## 컬러스왑 불가
                         Obj.config["Swapped"]=True
-                        self.ladySays(random.choice(talkScript['winning']))
+                        if not self.ladyBestMode:
+                            self.ladySays(random.choice(talkScript['winning']))
                         winning = True
 
                     if not self.ladyIsOnMate and mate!=None:
@@ -844,7 +845,7 @@ class mainScene(Scene):
                                     self.ladySays(random.choice(talkScript['blunder']))
                                     self.showSmile=True
                         
-                    Rs.playSound('move-chess.wav')
+                    Rs.playSound('move-chess.wav',volume=0.3)
                     self.ladyHandTimer=30
                     makeAIData("")
                     self.proc = None
@@ -917,6 +918,8 @@ class mainScene(Scene):
         random.shuffle(talkScript['talking'])
 
         self.talkTimer = 0
+        self.aiWait = 0 # AI가 기다리는 시간
+        self.ticker = True # TalkTimer 조절용 인수
         self.undoCoolTime = 0
         self.hintCoolTime = 0
         if Obj.config["Swapped"]:
@@ -959,7 +962,7 @@ class mainScene(Scene):
         
         
         #Background Objects#
-        self.bgPatternObj = imageObj('chess-room.png',pos=(0,0))
+        self.bgPatternObj = imageObj('chess-room-3.jpg',pos=(0,0))
         self.bgPatternObj.rect = Rs.screen.get_rect()
         
         backSize = Obj.game_geometry['board']['TileSize']*8+30
@@ -986,7 +989,7 @@ class mainScene(Scene):
                 self.raiseRematch = False
                 Obj.config["UserIsWhite"] = colorIsWhite
                 self.makeBoard(False)
-                Rs.playSound('chess-rematch.wav')
+                Rs.playSound('chess-rematch.wav',volume=0.6)
                 self.swappedColorTimer = -1 ## 컬러스왑한 사실을 없앰
                 Obj.config["Swapped"]=False
                 Obj.config["HintCount"]=0
@@ -1172,7 +1175,7 @@ class mainScene(Scene):
                     if c.collideMouse():
                         s = self.promotionKey+c.code
                         self.moveByString(s)
-                        Rs.playSound('move-chess.wav')
+                        Rs.playSound('move-chess.wav',volume=0.4)
                         self.hoverObj.setParent(None)
                         if self.talkTimer==0 and random.random()<0.2:
                             self.ladySays(random.choice(talkScript['thinking']))
@@ -1230,10 +1233,11 @@ class mainScene(Scene):
                                     if self.posToChessPos(i,j) in legal:                            
                                         s = self.posToChessPos(x,y)+self.posToChessPos(i,j)
                                         self.moveByString(s)
-                                        Rs.playSound('move-chess.wav')
+                                        Rs.playSound('move-chess.wav',volume=0.5)
                                         self.hoverObj.setParent(None)
                                         if self.talkTimer==0 and random.random()<0.2:
                                             self.ladySays(random.choice(talkScript['thinking']))
+                                        self.aiWait=random.randint(50,150)
                                     
                                         
                                         
@@ -1262,7 +1266,10 @@ class mainScene(Scene):
         else:
             if self.showHint:
                 self.showHint = False
-            self.aiMove()
+            if self.aiWait>0:
+                self.aiWait-=1
+            else:
+                self.aiMove()
         
         #체스말 부드럽게 움직이기 위한 코드
         if self.lastMovedObj != None and self.lastMovedObj.pos != RPoint(0,0):
@@ -1315,7 +1322,7 @@ class mainScene(Scene):
             if random.random()<0.0002:
                 if len(talkScript['talking'])>0:
                     self.ladySays(talkScript['talking'].pop())
-        if random.random()<0.005:
+        if random.random()<0.001:
             self.ladyCloseEyeTimer=5
 
         ## Undo 안되는 경우
@@ -1372,7 +1379,7 @@ class mainScene(Scene):
         mainScene.ladyObj.draw()
         if not self.isUserTurn():
             self.ladyThinkingObj.draw()
-        if self.talkTimer>50:
+        if self.talkTimer>100:
             self.ladyMouthObj.draw()
         if self.showSmile:
             self.ladySmileObj.draw()
@@ -1428,45 +1435,48 @@ class mainScene(Scene):
         self.rematchButtonLayout.draw()
         
 
+        self.ticker = not self.ticker
         if self.talkTimer>0:
 
-            temp = False
-            ##미세조정: 스크립트가 위아래로 왔다리 갔다리 하는 것을 막기 위한 조정임.
-            i = len(self.talkObj.text)
-            if i < len(self.currentSentence):
-                fullText = self.currentSentence
-                while i < len(fullText) and fullText[i] != " ":
-                    i+=1
-                parsedText = fullText[:i]
-                l1 = self.talkObj.getStringList(self.talkObj.text)[:-1]
-                l2 = self.talkObj.getStringList(parsedText)[:-1]
-                try:
-                    while len(l1[-1]) > len(l2[-1]):
-                        self.talkObj.text = fullText[:len(self.talkObj.text)+1]
-                        l1 = self.talkObj.getStringList(self.talkObj.text)[:-1]
-                        temp = True
-                except:
-                    pass
-                if not temp:
-                    self.talkObj.text = self.currentSentence[:len(self.talkObj.text)+1]
-            else:
-                self.talkTimer -=1
-                if self.talkTimer==0:
-                    self.showSmile=False
+            if self.ticker:
 
-            if self.talkTimer<25:
-                self.talkObj.alpha = int(self.talkTimer*8)
-                self.talkObj._update()
-                self.talkBgObj.alpha = int(self.talkTimer*8)
-                self.conversationButton.alpha = int((25-self.talkTimer)*8)
-                if self.talkTimer>1:
-                    self.conversationButton.hoverMode=False
+                temp = False
+                ##미세조정: 스크립트가 위아래로 왔다리 갔다리 하는 것을 막기 위한 조정임.
+                i = len(self.talkObj.text)
+                if i < len(self.currentSentence):
+                    fullText = self.currentSentence
+                    while i < len(fullText) and fullText[i] != " ":
+                        i+=1
+                    parsedText = fullText[:i]
+                    l1 = self.talkObj.getStringList(self.talkObj.text)[:-1]
+                    l2 = self.talkObj.getStringList(parsedText)[:-1]
+                    try:
+                        while len(l1[-1]) > len(l2[-1]):
+                            self.talkObj.text = fullText[:len(self.talkObj.text)+1]
+                            l1 = self.talkObj.getStringList(self.talkObj.text)[:-1]
+                            temp = True
+                    except:
+                        pass
+                    if not temp:
+                        self.talkObj.text = self.currentSentence[:len(self.talkObj.text)+1]
                 else:
-                    self.conversationButton.hoverMode=True
+                    self.talkTimer -=1
+                    if self.talkTimer==0:
+                        self.showSmile=False
 
-            else:
-                self.talkBgObj.alpha = min(200,self.talkBgObj.alpha+20)
-                self.conversationButton.alpha = 0
+                if self.talkTimer<25:
+                    self.talkObj.alpha = int(self.talkTimer*8)
+                    self.talkObj._update()
+                    self.talkBgObj.alpha = int(self.talkTimer*8)
+                    self.conversationButton.alpha = int((25-self.talkTimer)*8)
+                    if self.talkTimer>1:
+                        self.conversationButton.hoverMode=False
+                    else:
+                        self.conversationButton.hoverMode=True
+
+                else:
+                    self.talkBgObj.alpha = min(200,self.talkBgObj.alpha+20)
+                    self.conversationButton.alpha = 0
 
             self.talkBgObj.draw()
             self.talkObj.draw()
