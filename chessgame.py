@@ -172,7 +172,7 @@ talkScript = {
                "Kindly appraise this new attire, sir.",
                "Do you prefer this outfit, sir?",
                "Is this attire satisfactory, sir?",
-               "How do you find this attire, sir?",
+               "What do you think about this attire, sir?",
                "Is this what you had in mind, sir?",
                "Do you approve of this change, sir?",
                "Does this suit your taste, sir?",
