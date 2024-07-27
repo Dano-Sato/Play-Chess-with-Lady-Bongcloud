@@ -127,8 +127,8 @@ talkScript = {
                      "It's up to you to figure out the next move, sir.",
                      "I believe you can do this without any more hints, sir."],
     'conversation':["My family name is Bongcloud, sir. You can call me Charlotte.",
-                   "The Bongcloud opening has been passed down in my family for centuries, sir.",
-                   "In my family, the Bongcloud opening is considered a sacred chess move.",
+                   "The Bongcloud Attack has been passed down in my family for centuries, sir.",
+                   "In my family, the Bongcloud Attack is considered a sacred chess move.",
                    "I hope you're having a pleasant day, sir.",
                    "I trust you're having a good day, sir.",
                    "It is my pleasure to serve you, sir.",
@@ -141,9 +141,9 @@ talkScript = {
                    "Every moment with you is precious, sir.",
                    "I feel so lucky to have you in my life, sir.",
                    "You make my world a better place, sir.",
-                   "Do you understand the beauty of the Bongcloud opening?",
-                   "The Bongcloud opening requires boldness and creativity, sir.",
-                   "The Bongcloud opening can add excitement and unpredictability to your game, sir.",
+                   "Do you understand the beauty of the Bongcloud Attack?",
+                   "The Bongcloud Attack requires boldness and creativity, sir.",
+                   "The Bongcloud Attack can add excitement and unpredictability to your game, sir.",
                    "Thank you for playing with me, Mister. I hope we have a great match.",
                    "I'm excited to play against you, Sir. May the best player win!",
                    "Enjoy the game, Sir. Let's give our best.",
@@ -213,9 +213,9 @@ musicCredits = {
     "peaceful.mp3":"""Sunset Landscape by Keys of Moon | https://soundcloud.com/keysofmoon
 Creative Commons CC BY 4.0
     """,
-    "Nighttime-Stroll.mp3":"""Nighttime Stroll by Artificial.Music | https://soundcloud.com/artificial-music/
-Creative Commons CC BY 3.0
-https://creativecommons.org/licenses/by/3.0/
+    "Jazz.mp3":"""George Street Shuffle by Kevin MacLeod | https://incompetech.com/
+Creative Commons Creative Commons: By Attribution 3.0 License
+http://creativecommons.org/licenses/by/3.0/
     """,
     "Sakuya.mp3":""" Sakuya by PeriTune | https://peritune.com/
 Creative Commons Attribution 3.0 Unported License
@@ -223,7 +223,7 @@ https://creativecommons.org/licenses/by/4.0/
 """    
 }
 
-musicSheet = {"Calm":'peaceful.mp3',"Jazz":"Nighttime-Stroll.mp3","Japan":"Sakuya.mp3"}
+musicSheet = {"Calm":'peaceful.mp3',"Jazz":"Jazz.mp3","Japan":"Sakuya.mp3"}
 costumeSheet = {"Normal":"lady_bongcloud.png","Bunny":"lady_bongcloud_bunny.png","Beast":"lady_bongcloud_beast.png"}
 modeSheet = {"FullScreen":True,"Window":False}
 musicVolumeSheet = {"Japan":0.2} #음량 조절용 시트
@@ -837,12 +837,14 @@ class mainScene(Scene):
                         if check_better>10:
                             r = min(1,check_better/150)
                             if random.random()<r and not winning:
-                                self.ladySays(random.choice(talkScript['praise']))
+                                if random.random()<0.7:
+                                    self.ladySays(random.choice(talkScript['praise']))
                         elif check_better<-100:
                             #Lady가 실제로 응징하거나, 일정확률로 블런더 출력
                             if not winning:
                                 if abs(cp-cur_cp)<30 or random.random()<0.2:
-                                    self.ladySays(random.choice(talkScript['blunder']))
+                                    if random.random()<0.7:
+                                        self.ladySays(random.choice(talkScript['blunder']))
                                     self.showSmile=True
                         
                     Rs.playSound('move-chess.wav',volume=0.3)
