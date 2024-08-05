@@ -159,7 +159,7 @@ class Rs:
     #윈도우 해상도를 변화시킨다.    
     def setWindowRes(res:tuple):
         ##주 모니터의 최대 해상도보다 클 경우 강제 조정
-        ##Test
+        Rs.graphicCache={} # 그래픽 캐시 초기화
         max_res = Rs.fullScreenRes
         if res[0]>max_res[0] or res[1]>max_res[1]:
             res = max_res
@@ -1066,7 +1066,10 @@ class graphicObj():
 
     #object의 차일드를 포함한 그래픽을 캐싱한다.
     def _cacheGraphic(self):
-        Rs.graphicCache[id(self)]=self._getCache()
+        try:
+            Rs.graphicCache[id(self)]=self._getCache()
+        except:
+            pass
 
     ##캐시 청소 (그래픽을 새로 그리거나 위치를 옮길 때 캐시 청소가 필요)    
     def _clearGraphicCache(self):

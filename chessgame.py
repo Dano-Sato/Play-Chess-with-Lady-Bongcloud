@@ -540,9 +540,6 @@ class mainScene(Scene):
 
         s = 0
         
-
-        self.myDeadObj = layoutObj(Obj.game_geometry['board']['MyDeadPos'],isVertical=False,spacing=s,childs=myChilds)
-        self.herDeadObj = layoutObj(Obj.game_geometry['board']['HerDeadPos'],isVertical=False,spacing=s,childs=herChilds)
             
     #시작 기물을 정한다.
     def makeBoard(self,powerReset=False):
@@ -626,7 +623,7 @@ class mainScene(Scene):
             coordinateX=coordinateX[::-1]
         temp = []
         for c in coordinateX:
-            obj = textButton(c,pygame.Rect(0,0,Obj.game_geometry['board']['TileSize'],Obj.game_geometry['board']['TileSize']//2),hoverMode=False,color=Cs.black)
+            obj = textButton(c,pygame.Rect(0,0,Obj.game_geometry['board']['TileSize'],Obj.game_geometry['board']['TileSize']//2),hoverMode=False,color=Cs.black,alpha=255)
             temp.append(obj)
         pos = self.boardDisplay.pos+RPoint(0,Obj.game_geometry['board']['TileSize']*8)
         self.coordinateXObj = layoutObj(pos=pos,spacing=0,isVertical=False,childs=temp)
@@ -636,7 +633,7 @@ class mainScene(Scene):
             coordinateY=coordinateY[::-1]
         temp = []
         for c in coordinateY:
-            obj = textButton(c,pygame.Rect(0,0,Obj.game_geometry['board']['TileSize']//2,Obj.game_geometry['board']['TileSize']),hoverMode=False,color=Cs.black)
+            obj = textButton(c,pygame.Rect(0,0,Obj.game_geometry['board']['TileSize']//2,Obj.game_geometry['board']['TileSize']),hoverMode=False,color=Cs.black,alpha=255)
             temp.append(obj)
         pos = self.boardDisplay.pos+RPoint(-50,0)
         self.coordinateYObj = layoutObj(pos=pos,spacing=0,childs=temp)
@@ -716,7 +713,6 @@ class mainScene(Scene):
             number = 2*number
 
         Obj.config["PGN"]+="{0}. {1} ".format(number,s)
-        self.moveButton.text = s
         if Obj.config["Board"].piece_at(chess.parse_square(s[2:4])):
             piece = str(Obj.config["Board"].piece_at(chess.parse_square(s[2:4])))
             Rs.playSound('chess-kill.wav',volume=Obj.pieceVolume[piece.upper()])
@@ -931,7 +927,7 @@ class mainScene(Scene):
 
         self.talkTimer = 0
         self.aiWait = 0 # AI가 기다리는 시간
-        self.ticker = True # TalkTimer 조절용 인수
+        self.talkTicker = time.time() # TalkTimer 조절용 인수
         self.undoCoolTime = 0
         self.hintCoolTime = 0
         if Obj.config["Swapped"]:
@@ -997,7 +993,6 @@ class mainScene(Scene):
                 # 보드 초기화
                 Obj.config["Board"]=chess.Board()
                 Obj.config["PGN"]=""
-                self.moveButton.text = ""
                 self.raiseRematch = False
                 Obj.config["UserIsWhite"] = colorIsWhite
                 self.makeBoard(False)
@@ -1129,14 +1124,9 @@ class mainScene(Scene):
         self.debugObj = longTextObj('',pos=(0,0),textWidth=200)
         
         self.makeTurnButton()
-        self.moveButton = textButton("",Obj.game_geometry['button']['button3'],color=Cs.black,fontColor=Cs.grey,hoverMode=False)
-        self.moveButton.center = self.turnButton.geometryCenter + RPoint(Obj.game_geometry['button']['button3'].width*3,0)
 
         if Obj.config["PGN"]!="":
             lastMove = Obj.config["PGN"].split()[-1]
-            self.moveButton.text = lastMove
-
-        self.moveButton.update()
 
 
 
@@ -1374,7 +1364,6 @@ class mainScene(Scene):
         if self.promotionGUI:
             self.promotionGUI.update()
 
-        self.moveButton.update()
             
         ## DEBUG ##
         #if Rs.userJustLeftClicked():
@@ -1385,7 +1374,6 @@ class mainScene(Scene):
 
         return
     def draw(self):
-        Rs.acquireDrawLock()
         Rs.fillScreen(Cs.dark(Cs.dustyRose))
         self.bgPatternObj.draw()
         mainScene.ladyObj.draw()
@@ -1398,16 +1386,15 @@ class mainScene(Scene):
         if self.ladyCloseEyeTimer>0:
             self.ladyCloseEyeTimer-=1
             self.ladyClosedEyesObj.draw()
+        Rs.acquireDrawLock()
 
         self.chessTableObj.draw()
         self.chessBackObj.draw()
-        self.boardDisplay.draw()
         self.coordinateXObj.draw()
         self.coordinateYObj.draw()
+        self.boardDisplay.draw()
         
-        
-        self.myDeadObj.draw()
-        self.herDeadObj.draw()
+        Rs.releaseDrawLock()        
         
         if self.showHint and self.aboutHint["Fen"]==Obj.config["Board"].fen():
             move = self.aboutHint["Move"]
@@ -1437,7 +1424,6 @@ class mainScene(Scene):
 
 
         self.turnButton.draw()
-        self.moveButton.draw()
         self.buttonLayout.draw()
         if self.hintButton.collideMouse():
             self.hintCounterObj.draw()
@@ -1447,12 +1433,11 @@ class mainScene(Scene):
         self.rematchButtonLayout.draw()
         
 
-        self.ticker = not self.ticker
         if self.talkTimer>0:
 
-            if self.ticker:
+            if time.time()-self.talkTicker>1/22:
+                self.talkTicker=time.time()
 
-                temp = False
                 ##미세조정: 스크립트가 위아래로 왔다리 갔다리 하는 것을 막기 위한 조정임.
                 i = len(self.talkObj.text)
                 if i < len(self.currentSentence):
@@ -1469,8 +1454,7 @@ class mainScene(Scene):
                             temp = True
                     except:
                         pass
-                    if not temp:
-                        self.talkObj.text = self.currentSentence[:len(self.talkObj.text)+1]
+                    self.talkObj.text = self.currentSentence[:len(self.talkObj.text)+1]
                 else:
                     self.talkTimer -=1
                     if self.talkTimer==0:
@@ -1495,7 +1479,7 @@ class mainScene(Scene):
         ## DEBUG ##
         #self.debugObj.draw() ##DEBUG
         Obj.cursor.draw()
-        Rs.releaseDrawLock()
+
 
         return
 
