@@ -298,8 +298,18 @@ def updateGeoAndOpenGame():
         REMOGame.exit()
  
     screen_size = (int(w*r),int(h*r))
-
+    ##윈도우가 화면 밖을 벗어나는 문제 해결
+    if sys.platform == 'win32':
+        # On Windows, the monitor scaling can be set to something besides normal 100%.
+        # PyScreeze and Pillow needs to account for this to make accurate screenshots.
+        # TODO - How does macOS and Linux handle monitor scaling?
+        import ctypes
+        try:
+            ctypes.windll.user32.SetProcessDPIAware()
+        except AttributeError:
+            pass # Windows XP doesn't support monitor scaling, so just do nothing.
     window = REMOGame(screen_size,fullScreen,caption="Play Chess with Lady Bongcloud")
+
     REMOGame.setCurrentScene(Scenes.mainScene)
     window.run()
     
@@ -1006,7 +1016,7 @@ class mainScene(Scene):
         self.rematchWhiteButton.connect(rematch(True))
         self.rematchButtonLayout = layoutObj(pos=Obj.game_geometry['button']['pos1'],childs=[self.rematchBlackButton,self.rematchWhiteButton],isVertical=False)
         for button in self.rematchButtonLayout.childs:
-            button.setAlpha(0)
+            button.alpha =0
             
         self.hintButton = textButton("Get Hint",Obj.game_geometry['button']['button1'],color=Cs.hexColor("FB8DA0"))
         self.hintCounterObj = textObj("")
@@ -1188,7 +1198,6 @@ class mainScene(Scene):
                 self.promotionGUI = None
                 self.clickedPos=[]
             else:
-            
                 for j in range(8):
                     for i in range(8):
                         curObj = self.boardDisplay[j][i]
@@ -1351,12 +1360,12 @@ class mainScene(Scene):
         ## Button Updates ##
         if self.raiseRematch:
             for button in self.rematchButtonLayout.childs:
-                button.setAlpha(min(200,button.alpha+20))
+                button.alpha = min(200,button.alpha+20)
                 
             self.rematchButtonLayout.update()
         else:
             for button in self.rematchButtonLayout.childs:
-                button.setAlpha(max(0,button.alpha-20))
+                button.alpha = max(0,button.alpha-20)
 
         self.buttonLayout.update()
         self.buttonLayout2.update()
@@ -1376,6 +1385,7 @@ class mainScene(Scene):
 
         return
     def draw(self):
+        Rs.acquireDrawLock()
         Rs.fillScreen(Cs.dark(Cs.dustyRose))
         self.bgPatternObj.draw()
         mainScene.ladyObj.draw()
@@ -1388,6 +1398,7 @@ class mainScene(Scene):
         if self.ladyCloseEyeTimer>0:
             self.ladyCloseEyeTimer-=1
             self.ladyClosedEyesObj.draw()
+
         self.chessTableObj.draw()
         self.chessBackObj.draw()
         self.boardDisplay.draw()
@@ -1417,7 +1428,6 @@ class mainScene(Scene):
         if self.promotionGUI:
             self.promotionBoard.draw()
             self.promotionGUI.draw()
-
         if self.ladyHandTimer>0:
             x,y = self.lastChessObj
             lastObj = self.boardDisplay[y][x]
@@ -1485,6 +1495,7 @@ class mainScene(Scene):
         ## DEBUG ##
         #self.debugObj.draw() ##DEBUG
         Obj.cursor.draw()
+        Rs.releaseDrawLock()
 
         return
 
@@ -1519,14 +1530,10 @@ class configScene(Scene):
         cur_res = Rs.screen.get_rect().size[0]
         for res in [1080,1440,1920,2560]:
             button = textButton(str(res),Obj.game_geometry['button']['button1'])
-            if res == cur_res:
-                button.color = Cs.dark(button.color)
-                button.hoverMode = False
             def f(r):
                 def _():
                     Obj.config["Resolution"]=r
-                    Scenes.mainScene.initiated = False
-                    updateGeoAndOpenGame()
+                    Rs.setWindowRes((r,int(r*1080/1920)))
                     mainScene.saveConfig()
                 return _
             button.connect(f(res))
@@ -1541,9 +1548,6 @@ class configScene(Scene):
         l=[]
         for mode in modeSheet:
             button = textButton(mode,Obj.game_geometry['button']['button1'])
-            if Rs.isFullScreen() == modeSheet[mode]:
-                button.color = Cs.dark(button.color)
-                button.hoverMode = False
             def f(m):
                 def _():
                     Obj.config["FullScreen"]=m
@@ -1696,6 +1700,8 @@ class Scenes:
 
 
 if __name__=="__main__":
+    
+
     import multiprocessing
     multiprocessing.freeze_support()
     Rs.target_fps = 60
@@ -1715,8 +1721,12 @@ if __name__=="__main__":
         if key not in Obj.config:
             Obj.config = Obj.default_config
     
-    
-    updateGeoAndOpenGame() # 게임을 이렇게 시작해도 문제 없음
+
+    window = REMOGame(window_resolution=(1920,1080),screen_size=(1920,1080),fullscreen=False,caption="Play Chess with Lady Bongcloud")
+    window.setCurrentScene(Scenes.mainScene)
+    window.run()
+
+    #updateGeoAndOpenGame() # 게임을 이렇게 시작해도 문제 없음
     '''
     window = REMOGame((1920,1080),True,caption="Bishoujo Chess")
     REMOGame.setCurrentScene(Scenes.mainScene)
