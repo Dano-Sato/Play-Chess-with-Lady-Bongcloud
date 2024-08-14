@@ -740,7 +740,7 @@ class mainScene(Scene):
 
     @classmethod
     def saveConfig(cls):
-        Rs.saveData(Obj.configPath,Obj.config)
+        REMODatabase.saveData(Obj.configPath,Obj.config)
 
     def isMovable(self,i,j):
         fen = self.posToChessPos(i,j)
@@ -809,6 +809,7 @@ class mainScene(Scene):
                         self.swappedColorTimer=25 ## 컬러스왑 불가
                         Obj.config["Swapped"]=True
                         self.ladySays(random.choice(talkScript['mate']))
+                        self.playVoice("talk-checkmate.wav",0.2)
                 
                     if 'e1' in move or 'e8' in move or Obj.config["Board"].fullmove_number>3:
                         self.bongcloudOpened = True #King Moved or too late to bongcloud
@@ -845,12 +846,14 @@ class mainScene(Scene):
                             if random.random()<r and not winning:
                                 if random.random()<0.7:
                                     self.ladySays(random.choice(talkScript['praise']))
+                                    self.playVoice('talk-praise1.wav',0.2)
                         elif check_better<-100:
                             #Lady가 실제로 응징하거나, 일정확률로 블런더 출력
                             if not winning:
                                 if abs(cp-cur_cp)<30 or random.random()<0.2:
                                     if random.random()<0.7:
                                         self.ladySays(random.choice(talkScript['blunder']))
+                                        self.playVoice('talk-blunder1.wav',0.2)
                                     self.showSmile=True
                         
                     Rs.playSound('move-chess.wav',volume=0.3)
@@ -887,8 +890,15 @@ class mainScene(Scene):
         if Obj.config["Board"].turn == temp:
             return True
         return False
+    
+    def playVoice(self,fileName,volume):
+        if self.voice:
+            self.voice.stop()
+        self.voice = Rs.playSound(fileName,volume=volume*0.5)
+
 
     def initOnce(self):
+        self.voice = None # Lady Voice
         Rs.setIcon("gameIcon_184.png")
         pygame.mouse.set_visible(False)
         Obj.cursor = imageObj("cursor.png",scale=0.5)
@@ -1004,6 +1014,7 @@ class mainScene(Scene):
                 self.hintCoolTime=125
                 self.swapButton.fontColor = Cs.white
                 self.ladySays(random.choice(talkScript['newgame']))
+                self.playVoice("talk-newgame.wav",volume=0.2)
                 Obj.renewCondition()
                 self.ladyBestMode = False
             return f
@@ -1027,6 +1038,7 @@ class mainScene(Scene):
                         words = words.replace('#',self.aboutHint["Move"])
                         self.showHint = True
                         self.ladySays(words)
+                        self.playVoice("talk-hintOk.wav",volume=0.2)
                         Obj.config["HintCount"]+=1
                         self.updateHintCounter()
 
@@ -1045,6 +1057,7 @@ class mainScene(Scene):
         def raise_rematch():
             if not self.raiseRematch:
                 self.ladySays("Which color do you want to play?")
+                self.playVoice("talk-colorChange.wav",volume=0.2)
             else:
                 self.raiseRematch = True
                 self.ladySays("Oh, Ok.")
@@ -1064,6 +1077,7 @@ class mainScene(Scene):
                 self.ladyBestMode = True
                 Rs.playSound('chess-rematch.wav')
                 self.ladySays(random.choice(talkScript['swap']))
+                self.playVoice("talk-swap.wav",volume=0.25)
                 self.swappedColorTimer = 25 ##컬러 스왑했음을 알려주는 타이머
                 makeAIData("") # Reset Ai thinking
         
@@ -1133,6 +1147,7 @@ class mainScene(Scene):
         self.turnButtonTimer = 0
         
         self.ladySays(random.choice(talkScript['greeting']))
+        self.playVoice('talk-greeting1.wav',volume=0.2)
 
 
         mainScene.playMusic(Obj.config["Music"])
@@ -1181,6 +1196,7 @@ class mainScene(Scene):
                         self.hoverObj.setParent(None)
                         if self.talkTimer==0 and random.random()<0.2:
                             self.ladySays(random.choice(talkScript['thinking']))
+                            self.playVoice('talk-thinking1.wav',0.2)
                             
                 for obj in self.promotionGUI.childs:
                     obj.setParent(None)
@@ -1509,7 +1525,7 @@ class configScene(Scene):
         configScene.credit = longTextObj(credit,Obj.game_geometry["credit"]["Pos"],textWidth=Obj.game_geometry['board']['TileSize']*6,color=Cs.grey)
         
         ##해상도 조절 버튼##
-        self.resolutionLabel = textObj("Resolution")
+        self.resolutionLabel = textObj("Resolution",size=20)
         temp_l = []
         cur_res = Rs.screen.get_rect().size[0]
         for res in [1080,1440,1920,2560]:
@@ -1525,7 +1541,7 @@ class configScene(Scene):
             temp_l.append(button)
             
         self.resolutionLayout = layoutObj(pygame.Rect(0,0,t//2,t//2),isVertical=False,childs=temp_l)
-        self.modeLabel = textObj("Game Mode")
+        self.modeLabel = textObj("Game Mode",size=20)
         
         
         ##풀스크린 조절 버튼
@@ -1550,7 +1566,7 @@ class configScene(Scene):
         self.modeLayout = layoutObj(pygame.Rect(0,0,t//2,t//2),isVertical=False,childs=l)
         
         ##음악 볼륨 조절 기능
-        self.musicVolumeLabel = textObj("Music Volume")
+        self.musicVolumeLabel = textObj("Music Volume",size=20)
         configScene.musicVolumeSlider = sliderObj(RPoint(0,0),length=4*t,isVertical=False,value=Rs.getVolume(),color=Cs.aquamarine)
         def musicVolumeUpdate():
             Rs.setVolume(configScene.musicVolumeSlider.value)
@@ -1559,7 +1575,7 @@ class configScene(Scene):
         
         
         ##음악 선택 기능
-        self.muslcSelectionLabel = textObj("Select Music")
+        self.muslcSelectionLabel = textObj("Select Music",size=20)
         l2 = []
         for musicLabel in musicSheet:
             button = textButton(musicLabel,Obj.game_geometry['button']['button1'])
@@ -1586,7 +1602,7 @@ class configScene(Scene):
         
         
         ##TODO: 코스튬 선택 기능
-        self.costumeLabel = textObj("Costume")
+        self.costumeLabel = textObj("Costume",size=20)
         l3 = []
         for costumeLabel in costumeSheet:
             button = textButton(costumeLabel,Obj.game_geometry['button']['button1'])
