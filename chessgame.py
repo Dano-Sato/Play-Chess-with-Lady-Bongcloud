@@ -226,7 +226,7 @@ https://creativecommons.org/licenses/by/4.0/
 musicSheet = {"Calm":'peaceful.mp3',"Jazz":"Jazz.mp3","Japan":"Sakuya.mp3"}
 costumeSheet = {"Normal":"lady_bongcloud.png","Bunny":"lady_bongcloud_bunny.png","Beast":"lady_bongcloud_beast.png"}
 modeSheet = {"FullScreen":True,"Window":False}
-musicVolumeSheet = {"Japan":0.2} #음량 조절용 시트
+musicVolumeSheet = {"Jazz":0.6,"Japan":0.1} #음량 조절용 시트
 
 default_screen_size = (1920,1080)
 window =Rs.new(REMOGame)
@@ -613,7 +613,7 @@ class mainScene(Scene):
         self.talkObj = longTextObj("",geometry,size=size,textWidth=width)
         self.talkObj.alpha=255
         self.talkBgObj.alpha = 0
-        self.talkTimer = min(150,len(sentence)*5)
+        self.talkTimer = min(100,len(sentence)*3)
         
         None
 
@@ -809,7 +809,7 @@ class mainScene(Scene):
                         self.swappedColorTimer=25 ## 컬러스왑 불가
                         Obj.config["Swapped"]=True
                         self.ladySays(random.choice(talkScript['mate']))
-                        self.playVoice("talk-checkmate.wav",0.2)
+                        self.playVoice("talk-checkmate.wav",0.5)
                 
                     if 'e1' in move or 'e8' in move or Obj.config["Board"].fullmove_number>3:
                         self.bongcloudOpened = True #King Moved or too late to bongcloud
@@ -847,14 +847,14 @@ class mainScene(Scene):
                                 if random.random()<0.7:
                                     self.ladySays(random.choice(talkScript['praise']))
                                     praiseVoice = random.choice(['talk-praise1.wav','talk-praise2.wav','talk-praise3.wav'])
-                                    self.playVoice(praiseVoice,0.2)
+                                    self.playVoice(praiseVoice,0.5)
                         elif check_better<-100:
                             #Lady가 실제로 응징하거나, 일정확률로 블런더 출력
                             if not winning:
                                 if abs(cp-cur_cp)<30 or random.random()<0.2:
                                     if random.random()<0.7:
                                         self.ladySays(random.choice(talkScript['blunder']))
-                                        self.playVoice('talk-blunder1.wav',0.2)
+                                        self.playVoice('talk-blunder1.wav',0.5)
                                     self.showSmile=True
                         
                     Rs.playSound('move-chess.wav',volume=0.3)
@@ -1015,7 +1015,7 @@ class mainScene(Scene):
                 self.hintCoolTime=125
                 self.swapButton.fontColor = Cs.white
                 self.ladySays(random.choice(talkScript['newgame']))
-                self.playVoice("talk-newgame.wav",volume=0.2)
+                self.playVoice("talk-newgame.wav",volume=0.5)
                 Obj.renewCondition()
                 self.ladyBestMode = False
             return f
@@ -1040,7 +1040,7 @@ class mainScene(Scene):
                         self.showHint = True
                         self.ladySays(words)
                         hintVoice = random.choice(['talk-hintOk.wav','talk-hintOk2.wav'])
-                        self.playVoice(hintVoice,volume=0.2)
+                        self.playVoice(hintVoice,volume=0.5)
                         Obj.config["HintCount"]+=1
                         self.updateHintCounter()
 
@@ -1059,7 +1059,7 @@ class mainScene(Scene):
         def raise_rematch():
             if not self.raiseRematch:
                 self.ladySays("Which color do you want to play?")
-                self.playVoice("talk-colorChange.wav",volume=0.2)
+                self.playVoice("talk-colorChange.wav",volume=0.5)
             else:
                 self.raiseRematch = True
                 self.ladySays("Oh, Ok.")
@@ -1079,7 +1079,7 @@ class mainScene(Scene):
                 self.ladyBestMode = True
                 Rs.playSound('chess-rematch.wav')
                 self.ladySays(random.choice(talkScript['swap']))
-                self.playVoice("talk-swap.wav",volume=0.25)
+                self.playVoice("talk-swap.wav",volume=0.55)
                 self.swappedColorTimer = 25 ##컬러 스왑했음을 알려주는 타이머
                 makeAIData("") # Reset Ai thinking
         
@@ -1106,11 +1106,17 @@ class mainScene(Scene):
 
         self.conversationButton = imageButton("speech_icon.png",Obj.game_geometry['button']['talkButton'])
         self.conversationButton.alpha = 200
+        self.lastTalkedIndex = -1 # 마지막으로 말한 대사의 인덱스
         def conversation():
             if self.talkTimer==0:
                 if len(self.conversationList)>0:
                     self.ladySays(self.conversationList.pop())
-                    self.playVoice('talk-talking1.wav',volume=0.2)                    
+                    wavList = ['talk-talking1.wav','talk-talking2.wav','talk-talking3.wav']
+                    talking = random.randint(0,len(wavList)-1)
+                    while self.lastTalkedIndex == talking:
+                        talking = random.randint(0,len(wavList)-1)
+                    self.playVoice(wavList[talking],volume=0.5)            
+                    self.lastTalkedIndex = talking        
                 else:
                     self.conversationList = list(talkScript['conversation'])
                     random.shuffle(self.conversationList)
@@ -1150,7 +1156,7 @@ class mainScene(Scene):
         self.turnButtonTimer = 0
         
         self.ladySays(random.choice(talkScript['greeting']))
-        self.playVoice('talk-greeting1.wav',volume=0.2)
+        self.playVoice('talk-greeting1.wav',volume=0.5)
 
 
         mainScene.playMusic(Obj.config["Music"])
@@ -1158,6 +1164,8 @@ class mainScene(Scene):
         makeAIData("")
         
         self.isBuffering=False
+
+        self.ladyRect = rectObj(pygame.Rect(1410,100,240,630)) # Lady가 있는 위치. 클릭시 대화 재생
 
 
         return
@@ -1187,6 +1195,7 @@ class mainScene(Scene):
         if mainScene.changedCloth:
             mainScene.changedCloth=False
             self.ladySays(random.choice(talkScript['costume']))
+            self.playVoice("talk-costume.wav",volume=0.6)
         self.isHovering=False
         if self.isUserTurn():
             self.aiMakeHint()                
@@ -1199,7 +1208,7 @@ class mainScene(Scene):
                         self.hoverObj.setParent(None)
                         if self.talkTimer==0 and random.random()<0.2:
                             self.ladySays(random.choice(talkScript['thinking']))
-                            self.playVoice('talk-thinking1.wav',0.2)
+                            self.playVoice('talk-thinking1.wav',0.5)
                             
                 for obj in self.promotionGUI.childs:
                     obj.setParent(None)
@@ -1257,7 +1266,7 @@ class mainScene(Scene):
                                         self.hoverObj.setParent(None)
                                         if self.talkTimer==0 and random.random()<0.2:
                                             self.ladySays(random.choice(talkScript['thinking']))
-                                            self.playVoice('talk-thinking1.wav',0.2)
+                                            self.playVoice('talk-thinking1.wav',0.5)
 
                                         self.aiWait=random.randint(50,150)
                                     
@@ -1387,8 +1396,12 @@ class mainScene(Scene):
 
             
         ## DEBUG ##
-        #if Rs.userJustLeftClicked():
-            #print(Rs.mousePos())
+
+        if self.ladyRect.isJustClicked():
+            self.conversationButton.func()
+
+        if Rs.userJustLeftClicked():
+            print(Rs.mousePos())
         self.debugObj.pos = Rs.mousePos()+RPoint(20,20)
         self.debugObj.text = str(Rs.mousePos()) ## DEBUG
         Obj.cursor.pos = Rs.mousePos()
@@ -1400,7 +1413,7 @@ class mainScene(Scene):
         mainScene.ladyObj.draw()
         if not self.isUserTurn():
             self.ladyThinkingObj.draw()
-        if self.talkTimer>100:
+        if self.talkTimer>50:
             self.ladyMouthObj.draw()
         if self.showSmile:
             self.ladySmileObj.draw()
@@ -1456,7 +1469,7 @@ class mainScene(Scene):
 
         if self.talkTimer>0:
 
-            if time.time()-self.talkTicker>1/22:
+            if time.time()-self.talkTicker>1/30:
                 self.talkTicker=time.time()
 
                 ##미세조정: 스크립트가 위아래로 왔다리 갔다리 하는 것을 막기 위한 조정임.
