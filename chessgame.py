@@ -1109,7 +1109,8 @@ class mainScene(Scene):
         def conversation():
             if self.talkTimer==0:
                 if len(self.conversationList)>0:
-                    self.ladySays(self.conversationList.pop())                    
+                    self.ladySays(self.conversationList.pop())
+                    self.playVoice('talk-talking1.wav',volume=0.2)                    
                 else:
                     self.conversationList = list(talkScript['conversation'])
                     random.shuffle(self.conversationList)
