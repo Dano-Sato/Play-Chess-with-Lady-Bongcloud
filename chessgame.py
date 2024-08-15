@@ -846,7 +846,8 @@ class mainScene(Scene):
                             if random.random()<r and not winning:
                                 if random.random()<0.7:
                                     self.ladySays(random.choice(talkScript['praise']))
-                                    self.playVoice('talk-praise1.wav',0.2)
+                                    praiseVoice = random.choice(['talk-praise1.wav','talk-praise2.wav','talk-praise3.wav'])
+                                    self.playVoice(praiseVoice,0.2)
                         elif check_better<-100:
                             #Lady가 실제로 응징하거나, 일정확률로 블런더 출력
                             if not winning:
@@ -1038,7 +1039,8 @@ class mainScene(Scene):
                         words = words.replace('#',self.aboutHint["Move"])
                         self.showHint = True
                         self.ladySays(words)
-                        self.playVoice("talk-hintOk.wav",volume=0.2)
+                        hintVoice = random.choice(['talk-hintOk.wav','talk-hintOk2.wav'])
+                        self.playVoice(hintVoice,volume=0.2)
                         Obj.config["HintCount"]+=1
                         self.updateHintCounter()
 
@@ -1254,6 +1256,8 @@ class mainScene(Scene):
                                         self.hoverObj.setParent(None)
                                         if self.talkTimer==0 and random.random()<0.2:
                                             self.ladySays(random.choice(talkScript['thinking']))
+                                            self.playVoice('talk-thinking1.wav',0.2)
+
                                         self.aiWait=random.randint(50,150)
                                     
                                         
@@ -1572,6 +1576,9 @@ class configScene(Scene):
             Rs.setVolume(configScene.musicVolumeSlider.value)
             Obj.config["Volume"] = configScene.musicVolumeSlider.value
         configScene.musicVolumeSlider.connect(musicVolumeUpdate)
+
+        self.SEVolumeLabel = textObj("SE Volume",size=20)
+        configScene.SEVolumeSlider = Rs.SEVolumeSlider(RPoint(0,0),length=4*t,thickness=10,isVertical=False,color=Cs.orange)
         
         
         ##음악 선택 기능
@@ -1631,7 +1638,10 @@ class configScene(Scene):
 
 
 
-        self.leftSettingLayout = layoutObj(pygame.Rect(t,t*2,0,0),isVertical=True,childs=[self.resolutionLabel,self.resolutionLayout,self.modeLabel,self.modeLayout,self.musicVolumeLabel,configScene.musicVolumeSlider,self.muslcSelectionLabel,self.musicSelectionLayout,self.costumeLabel,self.costumeSelectionLayout],spacing=20)
+        self.leftSettingLayout = layoutObj(pygame.Rect(t,t*2,0,0),isVertical=True,childs=[self.resolutionLabel,self.resolutionLayout,self.modeLabel,self.modeLayout,self.musicVolumeLabel,configScene.musicVolumeSlider,
+                                                                                          self.SEVolumeLabel,self.SEVolumeSlider,
+                                                                                          self.muslcSelectionLabel,self.musicSelectionLayout,self.costumeLabel,
+                                                                                          self.costumeSelectionLayout],spacing=20)
         
         
 
