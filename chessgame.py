@@ -765,7 +765,7 @@ class mainScene(Scene):
                 
     ##TODO: AI가 현재 보드에 대한 Hint Data 생성
     def aiMakeHint(self):
-        from threading import Thread
+        from multiprocessing import Process
         if self.hintProc != None:
             self.hintProc.join(timeout=0)
             if self.hintProc.is_alive():
@@ -777,12 +777,12 @@ class mainScene(Scene):
                 self.hintProc = None
         else:
             if self.aboutHint["Fen"]!=Obj.config["Board"].fen():
-                self.hintProc = Thread(target=stockFishHintProcess,args=(Obj.config["Board"].fen(),stockFishPath))
+                self.hintProc = Process(target=stockFishHintProcess,args=(Obj.config["Board"].fen(),stockFishPath))
                 self.hintProc.start()
         None
                 
     def aiMove(self):
-        from threading import Thread
+        from multiprocessing import Process
         if self.proc != None:
             self.proc.join(timeout=0)
             if self.proc.is_alive():
@@ -867,7 +867,7 @@ class mainScene(Scene):
             c = (Obj.config["Board"].fullmove_number/200.0)
             if random.random()<c:
                 self.ladyBestMode = True # 턴이진행될수록 bestMode 진입확률 증가
-            self.proc = Thread(target=stockFishProcess,args=(1000,Obj.config["Board"].fen(),stockFishPath,self.bongcloudOpened,self.ladyBestMode))
+            self.proc = Process(target=stockFishProcess,args=(1000,Obj.config["Board"].fen(),stockFishPath,self.bongcloudOpened,self.ladyBestMode))
             self.proc.start()
             makeAIData("Thinking")
             
@@ -1713,6 +1713,8 @@ class Scenes:
 if __name__=="__main__":
     
 
+    import multiprocessing
+    multiprocessing.freeze_support()
     Rs.target_fps = 60
     Obj.stockfish.set_depth(20)
     Obj.stockfish.set_skill_level(20)
