@@ -16,6 +16,8 @@ UI_words = {
     "hint":{"en":"Get Hint","kr":"힌트","jp":"ヒント","cn":"提示"},
     "exit":{"en":"Exit Game","kr":"나가기","jp":"出口","cn":"退出"},
     "help":{"en":"Help","kr":"도움말","jp":"ヘルプ","cn":"帮助"},
+    "black":{"en":"Black","kr":"검은색","jp":"黒","cn":"黑色"},
+    "white":{"en":"White","kr":"흰색","jp":"白","cn":"白色"},
 }
 
 talkScript = {
@@ -506,8 +508,10 @@ class mainScene(Scene):
         self.swapButton.text = UI_words["swap"][mainScene.cur_lang]
         self.undoButton.text = UI_words["undo"][mainScene.cur_lang]
         self.hintButton.text = UI_words["hint"][mainScene.cur_lang]
+        self.rematchBlackButton.text = UI_words["black"][mainScene.cur_lang]
+        self.rematchWhiteButton.text = UI_words["white"][mainScene.cur_lang]
 
-        for button in [self.rematchButton,self.helpButton,self.configButton,self.exitButton,self.swapButton,self.undoButton,self.hintButton]:
+        for button in [self.rematchButton,self.helpButton,self.configButton,self.exitButton,self.swapButton,self.undoButton,self.hintButton,self.rematchBlackButton,self.rematchWhiteButton]:
             button.textObj.font = font
             button.textObj.center = button.geometryCenter-button.geometryPos
             button.update()
