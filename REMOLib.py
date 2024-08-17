@@ -1900,6 +1900,7 @@ class textButton(rectObj):
     @text.setter
     def text(self,text):
         self.textObj.text = text
+        self.textObj.center = self.geometryCenter-self.geometryPos
         self.update()
         
     @property

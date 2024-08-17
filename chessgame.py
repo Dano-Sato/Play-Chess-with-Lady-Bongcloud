@@ -6,6 +6,18 @@ from REMOLib import *
 
 stockFishPath = "stockfish-windows-2022-x86-64-avx2.exe"
 
+
+##UI에 관련된 단어들을 각국어별로 저장한다.
+UI_words = {
+    "undo":{"en":"Undo Move","kr":"되돌리기","jp":"元に戻す","cn":"撤销"},
+    "rematch":{"en":"Rematch","kr":"다시하기","jp":"リマッチ","cn":"再比赛"},
+    "swap":{"en":"Swap Side","kr":"진영 바꾸기","jp":"サイドを交換する","cn":"交换阵营"},
+    "config":{"en":"Config","kr":"설정","jp":"設定","cn":"设置"},
+    "hint":{"en":"Get Hint","kr":"힌트","jp":"ヒント","cn":"提示"},
+    "exit":{"en":"Exit Game","kr":"나가기","jp":"出口","cn":"退出"},
+    "help":{"en":"Help","kr":"도움말","jp":"ヘルプ","cn":"帮助"},
+}
+
 talkScript = {
     'greeting': ['it\'s a nice day, sir.',
                  'Hello, sir, How are you today?',
@@ -225,6 +237,7 @@ https://creativecommons.org/licenses/by/4.0/
 
 musicSheet = {"Calm":'peaceful.mp3',"Jazz":"Jazz.mp3","Japan":"Sakuya.mp3"}
 costumeSheet = {"Normal":"lady_bongcloud.png","Bunny":"lady_bongcloud_bunny.png","Beast":"lady_bongcloud_beast.png"}
+languageSheet = {"English":"en","日本語":"jp","中文":"cn","한국어":"kr"}
 modeSheet = {"FullScreen":True,"Window":False}
 musicVolumeSheet = {"Jazz":0.6,"Japan":0.1} #음량 조절용 시트
 
@@ -450,6 +463,7 @@ def makeAIHintData(move="",fen="",*,path=Obj.hint):
         
 
 class mainScene(Scene):
+    cur_lang = "en"
     fenToSprite = 'KQBNRPkqbnrp' # fen과 sprite index를 대응하는 표    
     tileSize = 100
     @classmethod
@@ -474,6 +488,29 @@ class mainScene(Scene):
             self.chessObjs[algCode]=[obj]
         return obj
 
+    def initUI(self):
+        value = mainScene.cur_lang
+
+        if value=='cn':
+            font = 'chinese_button.ttf'
+        elif value=='jp':
+            font = 'japanese_button.ttf'
+        else:
+            font = 'korean_button.ttf'
+
+
+        self.rematchButton.text = UI_words["rematch"][mainScene.cur_lang]
+        self.helpButton.text = UI_words["help"][mainScene.cur_lang]
+        self.configButton.text = UI_words["config"][mainScene.cur_lang]
+        self.exitButton.text = UI_words["exit"][mainScene.cur_lang]
+        self.swapButton.text = UI_words["swap"][mainScene.cur_lang]
+        self.undoButton.text = UI_words["undo"][mainScene.cur_lang]
+        self.hintButton.text = UI_words["hint"][mainScene.cur_lang]
+
+        for button in [self.rematchButton,self.helpButton,self.configButton,self.exitButton,self.swapButton,self.undoButton,self.hintButton]:
+            button.textObj.font = font
+            button.textObj.center = button.geometryCenter-button.geometryPos
+            button.update()
     
     def initChessObj(self):
         self.chessObjs={}
@@ -916,6 +953,10 @@ class mainScene(Scene):
         makeAIData("") # Reset Ai thinking
         Obj.renewCondition()
         Rs.setVolume(Obj.config["Volume"])
+        try:
+            mainScene.cur_lang = Obj.config["language"]
+        except:
+            mainScene.cur_lang = "en"
                 
         ##TODO:Buffering##
         self.bufferText = textObj('Now Loading',(400,400),color=Cs.white,size=Obj.game_geometry['sys']['ButtonFontSize'])
@@ -1025,7 +1066,7 @@ class mainScene(Scene):
         for button in self.rematchButtonLayout.childs:
             button.alpha =0
             
-        self.hintButton = textButton("Get Hint",Obj.game_geometry['button']['button1'],color=Cs.hexColor("FB8DA0"))
+        self.hintButton = textButton(UI_words["hint"][mainScene.cur_lang],Obj.game_geometry['button']['button1'],color=Cs.hexColor("FB8DA0"))
         self.hintCounterObj = textObj("")
         if Obj.config["HintCount"]>Obj.hintCountMax:
             self.hintButton.fontColor = (160,160,160)
@@ -1049,10 +1090,10 @@ class mainScene(Scene):
                         self.ladySays(random.choice(talkScript['hint-reject']))
                 self.hintCoolTime=127
         self.hintButton.connect(getHint)
-        self.undoButton = textButton("Undo Move",Obj.game_geometry['button']['button1'],color=Cs.hexColor("EFD3B5"))        
-        self.rematchButton = textButton("Rematch",Obj.game_geometry['button']['button1'],color=Cs.hexColor("A47551"))
+        self.undoButton = textButton(UI_words["undo"][mainScene.cur_lang],Obj.game_geometry['button']['button1'],color=Cs.hexColor("EFD3B5"))        
+        self.rematchButton = textButton(UI_words["rematch"][mainScene.cur_lang],Obj.game_geometry['button']['button1'],color=Cs.hexColor("A47551"))
         #게임중에 색을 바꿔서 플레이
-        self.swapButton = textButton("Swap Side",Obj.game_geometry['button']['button1'],color=Cs.dark(Cs.grey))
+        self.swapButton = textButton(UI_words["swap"][mainScene.cur_lang],Obj.game_geometry['button']['button1'],color=Cs.dark(Cs.grey))
         if Obj.config["Swapped"]:
             self.swapButton.fontColor= Cs.black
         # 재경기 의사를 표현한다.
@@ -1101,7 +1142,7 @@ class mainScene(Scene):
 
         self.undoButton.connect(undoMove)
 
-        self.exitButton = textButton("End Game",Obj.game_geometry['button']['button1'],color=Cs.dark(Cs.red))
+        self.exitButton = textButton(UI_words["exit"][mainScene.cur_lang],Obj.game_geometry['button']['button1'],color=Cs.dark(Cs.red))
         self.exitButton.connect(REMOGame.exit)
 
         self.conversationButton = imageButton("speech_icon.png",Obj.game_geometry['button']['talkButton'])
@@ -1132,11 +1173,11 @@ class mainScene(Scene):
         t = Obj.game_geometry['board']['TileSize']
         self.hintCounterObj.center = self.hintButton.geometryCenter+RPoint(-t//2,-t//3)
         self.updateHintCounter()
-        self.configButton = textButton("Config",Obj.game_geometry['button']['button1'],color=Cs.hexColor("9DB6CC"))
+        self.configButton = textButton(UI_words["config"][mainScene.cur_lang],Obj.game_geometry['button']['button1'],color=Cs.hexColor("9DB6CC"))
         
         self.configButton.connect(configScene.turnToConfig)
         
-        self.helpButton = textButton("Help",Obj.game_geometry['button']['button1'],color=Cs.red)
+        self.helpButton = textButton(UI_words["help"][mainScene.cur_lang],Obj.game_geometry['button']['button1'],color=Cs.red)
         def showHelp():
             Rs.setCurrentScene(Scenes.helpScene)
         self.helpButton.connect(showHelp)
@@ -1167,6 +1208,7 @@ class mainScene(Scene):
 
         self.ladyRect = rectObj(pygame.Rect(1410,100,240,630)) # Lady가 있는 위치. 클릭시 대화 재생
 
+        self.initUI()
 
         return
 
@@ -1530,6 +1572,7 @@ class configScene(Scene):
         def configBack():
             #TODO: config 상태 저장
             mainScene.saveConfig()
+            mainScene.freezeTimer=10
             Rs.setCurrentScene(Scenes.mainScene)
         configScene.configBackButton.connect(configBack)
         configScene.configBackButton.alpha = 100
@@ -1649,13 +1692,51 @@ class configScene(Scene):
             l3.append(button)
         self.costumeSelectionLayout = layoutObj(pygame.Rect(0,0,t//2,t//2),isVertical=False,childs=l3)
                 
+        self.languageLabel = textObj("Language",size=20)
+        l3 = []
+        for languageLabel in languageSheet:
+            value = languageSheet[languageLabel]
+
+            if value=='cn':
+                font = 'chinese_button.ttf'
+            elif value=='jp':
+                font = 'japanese_button.ttf'
+            else:
+                font = 'korean_button.ttf'
+
+            button = textButton(languageLabel,Obj.game_geometry['button']['button1'],font=font)
+            try:
+                Obj.config["language"]
+            except:
+                Obj.config["language"] = "en"
+
+            if languageLabel == Obj.config["language"]:
+                button.color = Cs.dark(button.color)
+                button.hoverMode = False
+            def f(m):
+                def _():
+                    mainScene.cur_lang = languageSheet[m]
+                    ##현재 언어 버튼 비활성화 처리
+                    for languageButton in self.languageSelectionLayout.childs:
+                        if languageButton.text == m:
+                            languageButton.color = Cs.dark(Cs.tiffanyBlue)
+                            languageButton.hoverMode = False
+                        else:
+                            languageButton.color = Cs.tiffanyBlue
+                            languageButton.hoverMode = True
+                    Obj.config["language"]=languageSheet[m]
+                    Scenes.mainScene.initUI()
+                return _
+            button.connect(f(languageLabel))
+            l3.append(button)
+        self.languageSelectionLayout = layoutObj(pygame.Rect(0,0,t//2,t//2),isVertical=False,childs=l3)
 
 
 
         self.leftSettingLayout = layoutObj(pygame.Rect(t,t*2,0,0),isVertical=True,childs=[self.resolutionLabel,self.resolutionLayout,self.modeLabel,self.modeLayout,self.musicVolumeLabel,configScene.musicVolumeSlider,
                                                                                           self.SEVolumeLabel,self.SEVolumeSlider,
                                                                                           self.muslcSelectionLabel,self.musicSelectionLayout,self.costumeLabel,
-                                                                                          self.costumeSelectionLayout],spacing=20)
+                                                                                          self.costumeSelectionLayout,self.languageLabel,self.languageSelectionLayout],spacing=20)
         
         
 
