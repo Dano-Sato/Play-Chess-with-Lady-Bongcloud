@@ -2,6 +2,11 @@ from model import Stockfish
 import chess
 from REMOLib import *
 
+##TODO: AI의 체스 레이팅을 조절하는 기능을 추가한다.
+##TODO: 미소녀와의 대화 번역을 지원한다.
+### getTalkScript 메소드를 만들고, ladySays 메소드에서 현재 언어를 참고해서 폰트를 쓴다.
+##TODO: 미소녀를 체크메이트 할 경우 게임이 튕기는 버그 존재
+##TODO: 체크하거나 당할때 소리가 나면 좋다.
 
 
 stockFishPath = "stockfish-windows-2022-x86-64-avx2.exe"
@@ -242,12 +247,15 @@ costumeSheet = {"Normal":"lady_bongcloud.png","Bunny":"lady_bongcloud_bunny.png"
 languageSheet = {"English":"en","日本語":"jp","中文":"cn","한국어":"kr"}
 modeSheet = {"FullScreen":True,"Window":False}
 musicVolumeSheet = {"Jazz":0.6,"Japan":0.1} #음량 조절용 시트
+stockfishSheet = {"Beginner":1000,"Intermediate":2000,"Expert":3000} #stockfish의 강도 조절용 시트
 
 default_screen_size = (1920,1080)
 window =Rs.new(REMOGame)
 
 class Obj():
-    stockfish = Stockfish(path=stockFishPath,parameters={"Threads":4})
+    stockfish_hint = Stockfish(path=stockFishPath,parameters={"Threads":4}) ## Stockfish로 힌트를 주는 AI
+    stockfish_play = Stockfish(path=stockFishPath,parameters={"Threads":4}) ## Stockfish로 게임을 하는 AI
+    chess_rating = 3000 # AI의 체스 레이팅
     game_geometry = copy.deepcopy(game_geometry_n)
     board = chess.Board()
     thinkOfAI = ""
@@ -329,8 +337,8 @@ def updateGeoAndOpenGame():
     window.run()
     
 def stockFishHintProcess(fen,path):
-    stockfish = Obj.stockfish
-    c = random.randint(3000,3500)
+    stockfish = Obj.stockfish_hint
+    c = random.randint(3000,4000) ## Hint AI의 강도를 랜덤하게, 하지만 고수의 시점으로 설정한다.
     stockfish.set_elo_rating(c)
     stockfish.set_fen_position(fen)
     l = stockfish.get_top_moves(3)
@@ -351,7 +359,7 @@ def stockFishProcess(time,fen,path,bongcloudOpened,isBestMode):
             if x["Centipawn"]==None:
                 return False
             return -100 < x["Centipawn"] < 300
-    stockfish = Obj.stockfish
+    stockfish = Obj.stockfish_play
     if random.random()>Obj.AIcondition:
         stockfish.set_elo_rating(3000)
     else: # Dojitko Move
@@ -1814,9 +1822,9 @@ if __name__=="__main__":
     import multiprocessing
     multiprocessing.freeze_support()
     Rs.target_fps = 60
-    Obj.stockfish.set_depth(20)
-    Obj.stockfish.set_skill_level(20)
-    print(Obj.stockfish.get_parameters())
+    Obj.stockfish_hint.set_depth(20)
+    Obj.stockfish_hint.set_skill_level(20)
+    print(Obj.stockfish_hint.get_parameters())
 
     ##TODO: 저장된 config 상태 적용
     if os.path.isfile(Obj.configPath):
