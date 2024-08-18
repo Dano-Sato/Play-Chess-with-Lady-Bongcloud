@@ -25,6 +25,15 @@ UI_words = {
     "white":{"en":"White","kr":"흰색","jp":"白","cn":"白色"},
 }
 
+
+##UI, 그중에서도 턴에 관련된 단어들을 각국어별로 저장한다.
+UI_turn = {
+    "my-turn":{"en":"Your Turn","kr":"당신의 차례","jp":"あなたの番","cn":"你的回合"},
+    "lady-turn":{"en":"Lady's Turn","kr":"미소녀의 차례","jp":"レディの番","cn":"女士的回合"},
+    "checkmate":{"en":"Checkmate","kr":"체크메이트","jp":"チェックメイト","cn":"将死"},
+    "turn":{"en":"Turn","kr":"차례","jp":"番","cn":"回合"},
+}
+
 talkScript = {
     'greeting': ['it\'s a nice day, sir.',
                  'Hello, sir, How are you today?',
@@ -501,12 +510,7 @@ class mainScene(Scene):
     def initUI(self):
         value = mainScene.cur_lang
 
-        if value=='cn':
-            font = 'chinese_button.ttf'
-        elif value=='jp':
-            font = 'japanese_button.ttf'
-        else:
-            font = 'korean_button.ttf'
+        font = self.getFont()
 
 
         self.rematchButton.text = UI_words["rematch"][mainScene.cur_lang]
@@ -519,10 +523,20 @@ class mainScene(Scene):
         self.rematchBlackButton.text = UI_words["black"][mainScene.cur_lang]
         self.rematchWhiteButton.text = UI_words["white"][mainScene.cur_lang]
 
+        ##메인 UI 관련 버튼 폰트 초기화
         for button in [self.rematchButton,self.helpButton,self.configButton,self.exitButton,self.swapButton,self.undoButton,self.hintButton,self.rematchBlackButton,self.rematchWhiteButton]:
             button.textObj.font = font
             button.textObj.center = button.geometryCenter-button.geometryPos
             button.update()
+
+        #기타 버튼 폰트 초기화
+        for button in [self.turnButton]:
+            button.textObj.font = font
+            button.textObj.center = button.geometryCenter-button.geometryPos
+            button.update()
+
+        self.updateTurnText()
+
     
     def initChessObj(self):
         self.chessObjs={}
@@ -686,6 +700,16 @@ class mainScene(Scene):
             temp.append(obj)
         pos = self.boardDisplay.pos+RPoint(-50,0)
         self.coordinateYObj = layoutObj(pos=pos,spacing=0,childs=temp)
+
+    ##현재 필요한 폰트를 반환하는 함수
+    def getFont(self):
+        if mainScene.cur_lang=='cn':
+            return 'chinese_button.ttf'
+        elif mainScene.cur_lang=='jp':
+            return 'japanese_button.ttf'
+        else:
+            return 'korean_button.ttf'
+
         
     def makeTurnButton(self):
         currentColor = Obj.config["Board"].fen().split()[1]
@@ -696,19 +720,20 @@ class mainScene(Scene):
                 number = 2*number-1
             else:
                 number = 2*number
-            turnText = "Turn "+str(number)+', '
+            turnText = UI_turn["turn"][mainScene.cur_lang] +" "+str(number)+', '
             if self.isUserTurn():
-                t = "Your Turn"
+                t = UI_turn["my-turn"][mainScene.cur_lang]
             else:
-                t = "Lady's Turn"
+                t = UI_turn["lady-turn"][mainScene.cur_lang]
             
             if currentColor=='w':
                 c = [Cs.white,Cs.black]
             else:
                 c = [Cs.black,Cs.white]
-            self.turnButton = textButton(turnText+t,Obj.game_geometry['button']['button2'],color=c[0],fontColor=c[1],hoverMode=False)    
+            self.turnButton = textButton(turnText+t,Obj.game_geometry['button']['button2'],color=c[0],fontColor=c[1],hoverMode=False,font=self.getFont())    
             self.turnButton.center = self.boardDisplay[4][4].geometryPos + 5*RPoint(0,Obj.game_geometry['board']['TileSize'])
             self.turnButton.update()
+            print(mainScene.cur_lang)
 
 
     #display 상에서의 좌표를 체스 좌표로 전환하는 함수
@@ -1242,6 +1267,31 @@ class mainScene(Scene):
     def init(self):
         return
     
+    ## 턴에 관련된 텍스트를 초기화한다.
+    def updateTurnText(self):
+        number = Obj.config["Board"].fullmove_number
+        if self.currentColor=='w':
+            number = 2*number-1
+        else:
+            number = 2*number
+
+        turnText = UI_turn["turn"][mainScene.cur_lang]+" "+str(number)+', '
+        
+        if Obj.config["Board"].is_checkmate():
+            t = "Checkmate"
+        elif Obj.config["Board"].is_stalemate():
+            t = "Stalemate"
+        elif Obj.config["Board"].is_variant_draw():
+            t = "Draw"
+
+        else:
+            if self.isUserTurn():
+                t = UI_turn["my-turn"][mainScene.cur_lang]
+            else:
+                t = UI_turn["lady-turn"][mainScene.cur_lang]
+        self.turnButton.text = turnText+t
+
+    
 
     def update(self):
         if Rs.userJustPressed(pygame.K_ESCAPE):
@@ -1369,26 +1419,7 @@ class mainScene(Scene):
         curColor = Obj.config["Board"].fen().split()[1]
         if self.currentColor !=curColor:
             self.currentColor = curColor
-            number = Obj.config["Board"].fullmove_number
-            if curColor=='w':
-                number = 2*number-1
-            else:
-                number = 2*number
-            turnText = "Turn "+str(number)+', '
-            
-            if Obj.config["Board"].is_checkmate():
-                t = "Checkmate"
-            elif Obj.config["Board"].is_stalemate():
-                t = "Stalemate"
-            elif Obj.config["Board"].is_variant_draw():
-                t = "Draw"
-
-            else:
-                if self.isUserTurn():
-                    t = "Your Turn"
-                else:
-                    t = "Lady's Turn"
-            self.turnButton.text = turnText+t
+            self.updateTurnText()
             self.turnButtonTimer=100
         
         if self.turnButtonTimer>0:
