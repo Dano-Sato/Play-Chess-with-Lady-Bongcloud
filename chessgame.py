@@ -1652,6 +1652,10 @@ class configScene(Scene):
         l=[]
         for mode in modeSheet:
             button = textButton(mode,Obj.game_geometry['button']['button1'])
+            if modeSheet[mode] == Rs.isFullScreen():
+                button.color = Cs.dark(Cs.tiffanyBlue)
+                button.hoverMode = False
+                
             def f(m):
                 def _():
                     Obj.config["FullScreen"]=m
@@ -1687,7 +1691,7 @@ class configScene(Scene):
         for musicLabel in musicSheet:
             button = textButton(musicLabel,Obj.game_geometry['button']['button1'])
             if musicLabel == Obj.config["Music"]:
-                button.color = Cs.dark(button.color)
+                button.color = Cs.dark(Cs.tiffanyBlue)
                 button.hoverMode = False
             def f(m):
                 def _():
@@ -1714,7 +1718,7 @@ class configScene(Scene):
         for costumeLabel in costumeSheet:
             button = textButton(costumeLabel,Obj.game_geometry['button']['button1'])
             if costumeLabel == Obj.config["Costume"]:
-                button.color = Cs.dark(button.color)
+                button.color = Cs.dark(Cs.tiffanyBlue)
                 button.hoverMode = False
             def f(m):
                 def _():
@@ -1753,7 +1757,7 @@ class configScene(Scene):
             except:
                 Obj.config["language"] = "en"
 
-            if languageLabel == Obj.config["language"]:
+            if value == Obj.config["language"]:
                 button.color = Cs.dark(button.color)
                 button.hoverMode = False
             def f(m):
