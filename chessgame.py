@@ -29,7 +29,7 @@ UI_words = {
 ##UI, 그중에서도 턴에 관련된 단어들을 각국어별로 저장한다.
 UI_turn = {
     "my-turn":{"en":"Your Turn","kr":"당신의 차례","jp":"あなたの番","cn":"你的回合"},
-    "lady-turn":{"en":"Lady's Turn","kr":"아가씨의 차례","jp":"レディの番","cn":"女士的回合"},
+    "lady-turn":{"en":"Lady's Turn","kr":"아가씨의 차례","jp":"レディの番","cn":"小姐的回合"},
     "checkmate":{"en":"Checkmate","kr":"체크메이트","jp":"チェックメイト","cn":"将死"},
     "turn":{"en":"Turn","kr":"차례","jp":"番","cn":"回合"},
 }
