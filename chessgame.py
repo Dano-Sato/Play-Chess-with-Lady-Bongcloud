@@ -1223,6 +1223,8 @@ class mainScene(Scene):
         self.currentSentence = sentence        
         geometry = Obj.game_geometry['talk']['Pos']
         size = Obj.game_geometry['talk']['TextSize']
+        if mainScene.cur_lang=='cn':
+            size += 5 ## 중국어는 한자가 작아서 크기를 더 키워준다.
         width = Obj.game_geometry['talk']['TextWidth']
         self.talkObj = longTextObj(sentence,geometry,size=size,textWidth=width,font=self.getFont())
         self.talkBgObj = rectObj(Rs.padRect(self.talkObj.boundary,size),color=Cs.black)
