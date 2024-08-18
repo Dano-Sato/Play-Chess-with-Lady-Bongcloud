@@ -1894,9 +1894,9 @@ class mainScene(Scene):
             else:
                 t = UI_turn["lady-turn"][mainScene.cur_lang]
 
-        if Obj.config["Board"].is_check():
+        if Obj.config["Board"].is_check() and number>1:
             ##체크인 경우 소리를 나게 한다.
-            Rs.playSound('check-sound.wav',volume=0.2)
+            Rs.playSound('check-sound.wav',volume=0.7)
 
             ##체크인 경우 빨갛게 체크 당한 왕에게 애니메이션을 준다.
             obj = Rs.copy(self.chessObjs['k'][0])
@@ -1910,7 +1910,7 @@ class mainScene(Scene):
             k_pos =Obj.config["Board"].king(c)
             x,y = self.chessPosToPos(chess.square_name(k_pos))
             obj.pos= self.boardDisplay[y][x].geometryPos
-            Rs.fadeAnimation(obj,time=150,alpha=150)
+            Rs.fadeAnimation(obj,time=250,alpha=150)
             print("KING",k_pos,self.currentColor)
             
 
