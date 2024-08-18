@@ -1888,12 +1888,32 @@ class mainScene(Scene):
             t = "Stalemate"
         elif Obj.config["Board"].is_variant_draw():
             t = "Draw"
-
         else:
             if self.isUserTurn():
                 t = UI_turn["my-turn"][mainScene.cur_lang]
             else:
                 t = UI_turn["lady-turn"][mainScene.cur_lang]
+
+        if Obj.config["Board"].is_check():
+            ##체크인 경우 소리를 나게 한다.
+            Rs.playSound('check-sound.wav',volume=0.2)
+
+            ##체크인 경우 빨갛게 체크 당한 왕에게 애니메이션을 준다.
+            obj = Rs.copy(self.chessObjs['k'][0])
+            obj.colorize(Cs.red)
+
+            if self.currentColor == 'w':
+                c = chess.WHITE
+            else:
+                c = chess.BLACK
+
+            k_pos =Obj.config["Board"].king(c)
+            x,y = self.chessPosToPos(chess.square_name(k_pos))
+            obj.pos= self.boardDisplay[y][x].geometryPos
+            Rs.fadeAnimation(obj,time=150,alpha=150)
+            print("KING",k_pos,self.currentColor)
+            
+
         self.turnButton.text = turnText+t
 
     
