@@ -410,6 +410,355 @@ talkScript_kr = {
 }
 
 
+
+##대화 스크립트 JP
+
+talkScript_jp = {
+    'greeting': ['こんにちは,ご機嫌いかがですか？',
+                 'ごきげんよう,今日お会いできて嬉しいです。',
+                 'こんにちは。今日はお元気でしょうか。',
+                 "今日お会いできて光栄です",
+                 "こんにちは。良い一日をお過ごしのことと存じます",
+                 "お会いできて光栄です",
+                 "本日はお会いできて光栄です",
+                 ],
+    'praise':["素晴らしい動きです",
+              "感動的な動きです",
+              "いいアイデアですね,先生！",
+              "あなたには才能がありますね,サー",
+              "あなたのプレーに感動しました,",
+              "いいプレーでした,サー",
+              "試合勘がありますね,サー",
+              "あなたの勇気に感動しました",
+              "困難に直面しても,よくプレーしました",
+              "この試合はさらにエキサイティングになった",
+              "あなたにはこのゲームの才能がある",
+              "展開が気になる",
+              "あなたの一挙手一投足に目が釘付けです",
+              "あなたはゲームを魅力的なものにしていますね,",
+              "いつもゲームに面白いひねりを加えてくれますね,先生",
+              "あなたの試合に対するユニークなアプローチに感謝しています,"
+              ],
+    'blunder':["Don't worry, sir.", 
+               "ミスは誰にでもあります",
+               "問題ありません。プレーを続けてください",
+               "大丈夫です。続けましょう,",
+               "次はきっとできますよ",
+               "その手は最善の選択ではないかもしれません,サー",
+               "もっといい手があると思うのですが......",
+               "もっといい手があると思うのですが,",
+               "私たちは楽しむためにここにいるんです,",
+               "あなたは私を楽しませてくれています",
+               "心配しないで,誰にでもあることだ",
+               "今日はチェスの駒が自分の意思を持っているようだ",
+               "面白い...選択だ！",
+               "まったく予想外だった",
+               "ゲームチェンジャーだ,間違いない",
+               "私は畏敬の念を抱いている...あなたの技量に,サー",
+               "あなたの戦略的な素晴らしさはとどまるところを知らない！",
+               "あなたの創造性に畏敬の念を抱きます",
+               "チェスの魔術師とお呼びしてもよろしいでしょうか？"
+               ],
+    'talking':["あなたと過ごす時間はいつも楽しいものです,",
+               "いつもお会いするのを楽しみにしております",
+               "あなたの友情に感謝しています",
+               "お体を大切になさってください。あなたの健康と幸福は大切です",
+               "チェスは相手の動きを予測する方法を教えてくれますよ",
+               "チェスは集中力を高めてくれますよ",
+               "あなたと過ごす時間はいつも楽しいです,先生",
+               "あなたの存在に感謝しています",
+               "あなたと一緒にいるといつも楽しいです,先生",
+               "あなたと過ごす時間はいつも楽しいです,サー",
+               "今日はいいお天気ですね",
+               "とても素敵な日ですね,サー",
+               "太陽が眩しいです",
+               "切磋琢磨するには最高の日です",
+               "ゲームには最高の天気ですね",
+               "いいお天気でチェス日和です", "対局日和です", "対局日和です", "対局日和です",
+               "私の心は,あなたの存在を待ち望んでいます",
+               ],
+    'newgame':["対局を始めたくてたまりません",
+               "ゲームを始めましょうか？"
+               ],
+    'mate':["申し訳ありませんが,この試合は私の勝ちのようです"],
+    'shy':["...どこで見ているのですか,サー？"
+           "...私の女性的な部分にご興味がおありとは...",
+           "...あなたの熱心な顔が見えます...",
+           "...何をお考えか,お聞かせ願えますか？",
+           "何か話したいことはありますか？",
+           "...興奮されているようですね,お客様",
+           "...熱心なご様子ですね,サー"],
+    'thinking':['どれどれ,先生...',
+                "うーん......",
+                "うーん,わかりました......",
+                "うーん,そうですか......",
+                "考えさせてください...",
+                "うーん,興味深い...",
+                "まあ,おそらく......"
+                ],
+    'undo-ok':["わかりました,今回だけです",
+               "今回は許可します",
+               "わかりました,しかし今回だけです",
+               "今回だけです",
+               "まあ,特別なケースとしてですが",
+               "今回は許可します"],
+    'undo-reject':["恐れ入りますが,それは適切ではありません。",
+                   "それは許可できません",
+                   "申し訳ありませんが,規則違反です",
+                   "そんなことはさせられません",
+                   "申し訳ありませんが,同意できません",
+                   "残念ながら,ノーと言わざるを得ません",
+                   "それは許可できません",
+                   ],
+    'hint-ok':["#は良い選択肢だと思います",
+               "#を考慮されましたか,サー？",
+               "おそらく#は良いアイデアだと思います",
+               "#を検討されることをお勧めします"],
+    'hint-reject':["チェスでは自分で考えることを学ばなければなりませんよ",
+                   "チェスでは,自分の直感に従うことが最善の方法であることがよくありますよ",
+                   "自分で考えることはチェスの上達に欠かせませんよ",
+                   "ちょっと待ってください。考えをまとめさせてください",
+                   "ちょっと待ってください。検討中です",
+                   "考える時間が必要です。少し考えさせてください",
+                   "少し考えさせてください。",
+                   ],
+    'hint-disabled':["You'll have to solve this one without my help, sir.",
+                     "これ以上ヒントを出すことはできません",
+                     "次の手を考えるのはあなた次第です",
+                     "これ以上ヒントを与えなくても,あなたならできると思います。"],
+    'conversation':["My family name is Bongcloud, sir. シャーロットと呼んでください",
+                   "ボンクラウド・アタックは私の家系に何世紀にもわたって受け継がれてきました。",
+                   "私の家系ではボンクラウドアタックは神聖なチェスの一手とされています",
+                   "楽しい一日をお過ごしでしょうか？",
+                   "良い一日をお過ごしのことと存じます",
+                   "お役に立てて光栄です",
+                   "この美しい一日をあなたと過ごせることを幸運に思います",
+                   "お客様,あなたとご一緒できるこれ以上完璧な日はありません。",
+                   "サー,この日の美しさは,あなたが私にもたらす喜びに比べれば,微々たるものです",
+                   "ご指導は喜んでいたしますが,あまりお力添えはしたくありません",
+                   "ヒントはいいですが,多すぎるのは困ります",
+                   "あなたは私の人生に光を与えてくれます",
+                   "あなたとの一瞬一瞬が貴重です",
+                   "私の人生にあなたがいてくれて,とても幸せです。",
+                   "あなたは私の世界をより良い場所にしてくれます",
+                   "ボンクラウド・アタックの素晴らしさを理解していますか？",
+                   "ボンクラウド・アタックには大胆さと創造性が必要です,サー",
+                   "ボンクラウド・アタックは,あなたのゲームに興奮と予測不可能性を加えることができますよ",
+                   "僕と対戦してくれてありがとう,ミスター。いい試合をしたいですね",
+                   "あなたと対戦するのが楽しみです。最高の選手が勝ちますように！",
+                   "試合を楽しんでください。ベストを尽くしましょう",
+                   "この試合があなたにとって喜びとなりますように。お互いに全力を尽くしましょう",
+                   "自分を信じてください,あなたは偉大なことができるのですから",
+                   "胸を張ってください,明るい日々が待っています",
+                   "この試合でも,その先でも,サー,あなたは偉大な運命にあります",
+                   "あなたには可能性があります。ゲームを有利に進めよう！",
+                   "自分の力を信じてください",
+                   "自分を信じてください",
+                   "チェス盤はあなたのキャンバスです。あなたの輝きで描け！",
+                   "あごを上げてください,サー"
+                   "希望を抱きなさい",
+                   "一手一手,あなたの技量と決意を示しています。",
+                   "あなたと過ごす時間が私の望みです,サー",
+                   "私の幸せはあなたと一緒にいることです,サー",
+                   "あなたと一緒にいるとき,私は完全であると感じます,サー",
+                   "あなたは私の大好きな場所です",
+                   "あなたは灰色の世界における私の太陽です,先生",
+                   "あなたの近くにいることは,純粋な幸せです。",
+                   "あなたとともに,私の居場所を見つけました",
+                   ],
+    'costume':["お直しいたしました。お口に合えば幸いです",
+               "この新しい服装をご鑑賞ください",
+               "この服装がお好みですか？",
+               "この服装でよろしいでしょうか？",
+               "この服装についてどう思われますか？",
+               "これがあなたの考えていたものですか、サー？",
+               "この変更をお認めになりますか、お客様？",
+               "お気に召しましたか？",
+               "この服装でよろしいでしょうか？",
+               "この新しい服装はお気に召しますか、お客様？",
+               "お気に召しますでしょうか？",
+    ],
+    'swap':["私はあなたの側を採用し、斬新なチェス体験を提供します",
+            "それは私たちを適応させ、異なる考え方をするよう誘います。",
+            "ゲームに面白いひねりを加えてくれますね",
+            "それは興奮のタッチを追加しますよね？",
+            ],
+    'winning':["今はゲームをしたくないようですね、サー"]
+}
+
+talkScript_cn = {
+    'greeting': ['您好，先生，今天过得好吗？',
+                 '您好，先生', 
+                 '您好，亲爱的先生 今天很高兴见到您',
+                 "下午好，先生 希望您今天一切都好",
+                 "今天很高兴见到您，先生",
+                 "您好，先生 ",
+                 "见到您总是很高兴，先生",
+                 "今天您能来真是太好了 先生",
+                 ],
+    'praise':['干得好，先生、',
+              "干得漂亮，先生！",
+              "令人印象深刻的举动，长官！",
+              "这是个好主意，长官！",
+              "你在这方面很有天赋，先生",
+              "你的表现让我印象深刻，先生",
+              "打得好，长官",
+              "你对比赛很有感觉，先生",
+              "你的勇气让我印象深刻",
+              "打得好，即使面对挑战",
+              "比赛变得更刺激了",
+              "你很有比赛天赋",
+              "我很好奇它是如何展开的",
+              "你的举动引起了我的注意，先生",
+              "你让比赛充满魅力，先生",
+              "你总能给比赛带来有趣的转折，先生",
+              "我很欣赏您独特的比赛方式，先生",
+              ],
+    'blunder':["没问题，先生。继续比赛。",
+               "没关系，先生。我们继续。",
+               "下次你会成功的，先生",
+               "这一步可能不是最好的选择，先生",
+               "我想可能有更好的选择，先生",
+               "也许你可以换个动作 先生",
+               "毕竟我们是来找乐子的",
+               "你让我乐在其中",
+               "别担心，我们都会这样",
+               "看来今天的棋子都有自己的想法",
+               "有趣的......选择！",
+               "我完全没想到",
+               "毫无疑问，它改变了游戏规则",
+               "我对你的技巧......肃然起敬，先生",
+               "你的战略才华无与伦比！",
+               "你的妙招让我敬畏......你的创造力",
+               "我能叫您象棋奇才吗，先生？",
+               ],
+    'talking':["和您在一起总是很愉快，先生、",
+               "我总是期待着见到您 先生",
+               "我很感谢您的友谊，先生",
+               "保重身体，先生。您的健康和幸福很重要",
+               "国际象棋可以教你如何预测对手的行动，先生",
+               "国际象棋可以提高您的注意力和专注力，先生",
+               "我总是喜欢和您在一起 先生",
+               "我很感谢您的光临，先生",
+               "和您在一起总是很愉快，先生",
+               "和您在一起总是很快乐，先生",
+               "今天天气真好，先生",
+               "今天天气真好，先生",
+               "阳光明媚，先生",
+               "今天是进行友谊比赛的好日子，先生",
+               "天气非常适合下棋，先生",
+               "美好的天气适合我们下棋，先生"
+               "我渴望您的光临，先生",               
+               ],
+    'newgame':["我迫不及待地想开始下棋了，先生",
+               "我们开始游戏吧，先生？"
+               ],
+    'mate':["很抱歉，先生，看来我赢了这场比赛"],
+    'shy':['......你在看哪里，先生？',
+           "......我不知道您对我的女性部位感兴趣......",
+           "......我看到你渴望的脸......",
+           "......我能知道你在想什么吗，先生？",
+           "......您有什么想说的吗，先生？",
+           "......您看起来很兴奋，先生",
+           "......您看起来很兴奋，先生。"],
+    'thinking':['让我看看，先生......',
+                "嗯，好的......",
+                "嗯，我明白了......",
+                "让我想想......",
+                "嗯，有意思......",
+                "嗯，有可能......"
+                ],
+    'undo-ok':['嗯... 好吧，先生，就这一次',
+               "这次我允许，长官",
+               "好吧，先生，就这一次",
+               "好吧，就这一次，长官",
+               "好吧，作为特例，长官",
+               "这次我同意你的请求，长官",
+               "我只允许这一次，先生"],
+    'undo-reject':["恐怕这样不合适，先生。"
+                   "我不能允许，先生",
+                   "对不起，先生，这违反规定",
+                   "我不能让你这么做，先生",
+                   "对不起，先生，我不能同意",
+                   "恐怕我不得不拒绝 先生",
+                   "这不是我能允许的 先生",
+                   ],
+    'hint-ok':["您考虑过 # 吗，先生？",
+               "也许 # 是个好主意，先生",
+               "我建议您考虑 #，先生。"],
+    'hint-reject':["下棋要学会独立思考，先生",
+                   "在国际象棋中，遵循自己的直觉往往是最好的方法，先生、",
+                   "独立思考是提高棋艺的关键 先生",
+                   "请稍等，先生。让我整理一下思路",
+                   "请给我一点时间，先生。我正在考虑",
+                   "我需要一点时间考虑，先生。请稍等一下",
+                   "我需要一点时间考虑 先生",
+                   ],
+    'hint-disabled':["恐怕我不能再给您任何提示了，先生",
+                     "下一步就看你的了，先生",
+                     "我相信您可以做到这一点，无需更多提示，先生"],
+    'conversation':["奉云攻击在我的家族已经传承了几个世纪，先生。",
+                   "在我们家族 邦云攻击被视为神圣的棋步",
+                   "希望您今天过得愉快 先生",
+                   "我相信您今天过得很愉快 先生",
+                   "为您服务是我的荣幸，先生",
+                   "能与您共度这美好的一天 我感到非常幸运 先生",
+                   "先生，我想象不出还有比这更完美的一天了",
+                   "先生，与您带给我的快乐相比，今天的美丽就显得微不足道了",
+                   "先生，我很乐意为您提供指导，但我不想给您太多帮助。",
+                   "提示是好的，但不要太多，先生",
+                   "您给我的生活带来了光明，先生",
+                   "和你在一起的每一刻都弥足珍贵，先生",
+                   "有你在我生命中，我感到很幸运，先生",
+                   "你让我的世界更美好，先生",
+                   "你了解奉云攻击的魅力吗？",
+                   "邦云攻击需要勇气和创造力，先生",
+                   "邦云攻击可以为你的游戏增添刺激和不可预测性，先生",
+                   "谢谢你和我比赛，先生。我希望我们能有一场精彩的比赛。",
+                   "我很高兴能与您对弈，先生。愿最好的选手获胜",
+                   "好好享受比赛吧，先生。让我们全力以赴",
+                   "愿这场比赛给您带来快乐，先生。让我们全力以赴",
+                   "相信自己，先生，你有能力成就大事",
+                   "振作起来，先生，光明的日子在等着你",
+                   "无论在比赛中还是比赛后" "先生，你注定会成就伟大",
+                   "你有潜力，先生。让比赛对你有利",
+                   "相信自己的能力，先生",
+                   "相信自己，先生",
+                   "先生，棋盘就是你的画布。",
+                   "先生，棋盘就是你的画布，用你的才华去描绘它！"
+                   "抬起你的下巴 先生",
+                   "拥抱希望 先生",
+                   "先生，你的每一步都展现了你的技巧和决心",
+                   "和你在一起是我唯一的愿望，先生",
+                   "我的幸福就是和你在一起，先生",
+                   "和你在一起我感觉很完整，先生",
+                   "你是我最爱的地方，先生",
+                   "你是我灰暗世界里的阳光，先生",
+                   "在你身边就是纯粹的幸福，先生",
+                   "和你在一起，我找到了归属，先生",
+    ],
+    'costume':["先生，您觉得这身衣服更合身吗？",
+               "我已经改过了，先生。希望能满足您挑剔的品味。",
+               "先生，请您评价一下这身新装",
+               "您喜欢这身行头吗，先生？",
+               "您对这套服装满意吗，先生？",
+               "您觉得这套服装怎么样，先生？",
+               "这是您想要的吗，长官？",
+               "您同意这样的改变吗，先生？",
+               "这符合您的品味吗，先生？",
+               "这套服装是否满意，先生？",
+               "这身新行头讨人喜欢吗，先生？",
+               "我希望这能让您满意，先生",
+    ],
+    'swap':["先生，我站在您这边，您站在我这边",
+            "先生，我将采用你这一方，为我们提供新颖的下棋体验",
+            "它邀请我们去适应和换位思考",
+            "这给比赛增添了有趣的转折",
+            "它增添了一丝刺激，不是吗？",
+            ],
+    'winning':["看来你现在不想下棋了，先生。"]
+}
+
 ### 대화 스크립트 끝
 
 
@@ -479,7 +828,7 @@ class Obj():
     heart = "♥"
     emptyHeart = "♡"
     cursor = Rs.new(imageObj)
-    talkscripts = {"en":talkScript,"kr":talkScript_kr}
+    talkscripts = {"en":talkScript,"kr":talkScript_kr,"jp":talkScript_jp,"cn":talkScript_cn} ## 대화 스크립트 모음
     
     @classmethod
     def renewCondition(cls):
@@ -494,7 +843,8 @@ class Obj():
         if str(b.piece_at(chess.parse_square(s))).upper()=="K" and e in ["e1","e8"]:
             return True
         return False        
-        
+    
+    
                 
         
         
@@ -709,7 +1059,6 @@ class mainScene(Scene):
         return obj
 
     def initUI(self):
-        value = mainScene.cur_lang
 
         font = self.getFont()
 
@@ -735,6 +1084,9 @@ class mainScene(Scene):
             button.textObj.font = font
             button.textObj.center = button.geometryCenter-button.geometryPos
             button.update()
+
+        self.conversationList = list(self.getTalkScript()['conversation']) ## 대화 리스트를 초기화한다.
+        random.shuffle(self.conversationList)
 
         self.updateTurnText()
 
@@ -872,12 +1224,24 @@ class mainScene(Scene):
         geometry = Obj.game_geometry['talk']['Pos']
         size = Obj.game_geometry['talk']['TextSize']
         width = Obj.game_geometry['talk']['TextWidth']
-        self.talkObj = longTextObj(sentence,geometry,size=size,textWidth=width)
+        self.talkObj = longTextObj(sentence,geometry,size=size,textWidth=width,font=self.getFont())
         self.talkBgObj = rectObj(Rs.padRect(self.talkObj.boundary,size),color=Cs.black)
-        self.talkObj = longTextObj("",geometry,size=size,textWidth=width)
+        self.talkObj = longTextObj("",geometry,size=size,textWidth=width,font=self.getFont())
+        print(self.getFont())
         self.talkObj.alpha=255
         self.talkBgObj.alpha = 0
-        self.talkTimer = min(100,len(sentence)*3)
+
+
+        ##언어에 따라 대화창의 지속 시간을 조절한다.
+        if mainScene.cur_lang=='en':
+            l = 3
+        elif mainScene.cur_lang=='jp':
+            l = 15
+        elif mainScene.cur_lang=='cn':
+            l = 15
+        else:
+            l = 4
+        self.talkTimer = min(100,len(sentence)*l)
         
         None
 
@@ -910,6 +1274,10 @@ class mainScene(Scene):
             return 'japanese_button.ttf'
         else:
             return 'korean_button.ttf'
+        
+    ##현재 필요한 대화 스크립트를 반환하는 함수
+    def getTalkScript(self):
+        return Obj.talkscripts[mainScene.cur_lang]
 
         
     def makeTurnButton(self):
@@ -1076,14 +1444,14 @@ class mainScene(Scene):
                         self.swappedColorTimer=25 ## 컬러스왑 불가
                         Obj.config["Swapped"]=True
                         if not self.ladyBestMode:
-                            self.ladySays(random.choice(talkScript['winning']))
+                            self.ladySays(random.choice(self.getTalkScript()['winning']))
                         winning = True
 
                     if not self.ladyIsOnMate and mate!=None:
                         self.ladyIsOnMate = True
                         self.swappedColorTimer=25 ## 컬러스왑 불가
                         Obj.config["Swapped"]=True
-                        self.ladySays(random.choice(talkScript['mate']))
+                        self.ladySays(random.choice(self.getTalkScript()['mate']))
                         self.playVoice("talk-checkmate.wav",0.5)
                 
                     if 'e1' in move or 'e8' in move or Obj.config["Board"].fullmove_number>3:
@@ -1120,7 +1488,7 @@ class mainScene(Scene):
                             r = min(1,check_better/150)
                             if random.random()<r and not winning:
                                 if random.random()<0.7:
-                                    self.ladySays(random.choice(talkScript['praise']))
+                                    self.ladySays(random.choice(self.getTalkScript()['praise']))
                                     praiseVoice = random.choice(['talk-praise1.wav','talk-praise2.wav','talk-praise3.wav'])
                                     self.playVoice(praiseVoice,0.5)
                         elif check_better<-100:
@@ -1128,7 +1496,7 @@ class mainScene(Scene):
                             if not winning:
                                 if abs(cp-cur_cp)<30 or random.random()<0.2:
                                     if random.random()<0.7:
-                                        self.ladySays(random.choice(talkScript['blunder']))
+                                        self.ladySays(random.choice(self.getTalkScript()['blunder']))
                                         self.playVoice('talk-blunder1.wav',0.5)
                                     self.showSmile=True
                         
@@ -1210,10 +1578,10 @@ class mainScene(Scene):
         
 
         ##잡담을 저장하는 인자 
-        self.conversationList = list(talkScript['conversation'])
+        self.conversationList = list(self.getTalkScript()['conversation'])
         random.shuffle(self.conversationList)
         self.raiseRematch = False
-        random.shuffle(talkScript['talking'])
+        random.shuffle(self.getTalkScript()['talking'])
 
         self.talkTimer = 0
         self.aiWait = 0 # AI가 기다리는 시간
@@ -1293,7 +1661,7 @@ class mainScene(Scene):
                 self.updateHintCounter()
                 self.hintCoolTime=125
                 self.swapButton.fontColor = Cs.white
-                self.ladySays(random.choice(talkScript['newgame']))
+                self.ladySays(random.choice(self.getTalkScript()['newgame']))
                 self.playVoice("talk-newgame.wav",volume=0.5)
                 Obj.renewCondition()
                 self.ladyBestMode = False
@@ -1311,10 +1679,10 @@ class mainScene(Scene):
         def getHint():
             if self.hintCoolTime==0 and self.showHint == False and self.isUserTurn():
                 if Obj.config["HintCount"]>Obj.hintCountMax:
-                    self.ladySays(random.choice(talkScript['hint-disabled']))
+                    self.ladySays(random.choice(self.getTalkScript()['hint-disabled']))
                 else:
                     if self.aboutHint["Fen"] == Obj.config["Board"].fen() and self.aboutHint["Move"]!=None:
-                        words = random.choice(talkScript['hint-ok'])
+                        words = random.choice(self.getTalkScript()['hint-ok'])
                         words = words.replace('#',self.aboutHint["Move"])
                         self.showHint = True
                         self.ladySays(words)
@@ -1325,7 +1693,7 @@ class mainScene(Scene):
 
                         mainScene.saveConfig()
                     else:
-                        self.ladySays(random.choice(talkScript['hint-reject']))
+                        self.ladySays(random.choice(self.getTalkScript()['hint-reject']))
                 self.hintCoolTime=127
         self.hintButton.connect(getHint)
         self.undoButton = textButton(UI_words["undo"][mainScene.cur_lang],Obj.game_geometry['button']['button1'],color=Cs.hexColor("EFD3B5"))        
@@ -1337,11 +1705,13 @@ class mainScene(Scene):
         # 재경기 의사를 표현한다.
         def raise_rematch():
             if not self.raiseRematch:
-                self.ladySays("Which color do you want to play?")
+                scripts = {'en':"Which color do you want to play?","kr":"어떤 색으로 게임을 하시겠습니까?","jp":"どの色でプレイしますか？","cn":"您想玩什么颜色？"}
+                self.ladySays(scripts[mainScene.cur_lang])
                 self.playVoice("talk-colorChange.wav",volume=0.5)
             else:
                 self.raiseRematch = True
-                self.ladySays("Oh, Ok.")
+                scripts = {'en':"Oh, Ok.","kr":"알겠어요.","jp":"わかりました。","cn":"好的。"}
+                self.ladySays(scripts[mainScene.cur_lang])
             self.raiseRematch = not self.raiseRematch                
         self.rematchButton.connect(raise_rematch)
         
@@ -1357,7 +1727,7 @@ class mainScene(Scene):
                 self.makeBoard(False)
                 self.ladyBestMode = True
                 Rs.playSound('chess-rematch.wav')
-                self.ladySays(random.choice(talkScript['swap']))
+                self.ladySays(random.choice(self.getTalkScript()['swap']))
                 self.playVoice("talk-swap.wav",volume=0.55)
                 self.swappedColorTimer = 25 ##컬러 스왑했음을 알려주는 타이머
                 makeAIData("") # Reset Ai thinking
@@ -1371,10 +1741,10 @@ class mainScene(Scene):
                     Obj.config["Board"].pop()
                     self.updateBoard()
                     self.lastMovedObj.setParent(None)
-                    self.ladySays(random.choice(talkScript['undo-ok']))
+                    self.ladySays(random.choice(self.getTalkScript()['undo-ok']))
                     self.undoCounter=min(1,self.undoCounter+random.random()*0.5)
                 else:
-                    self.ladySays(random.choice(talkScript['undo-reject']))
+                    self.ladySays(random.choice(self.getTalkScript()['undo-reject']))
                     self.undoCounter=max(0,self.undoCounter*0.5)
                 self.undoCoolTime = 127
 
@@ -1397,7 +1767,7 @@ class mainScene(Scene):
                     self.playVoice(wavList[talking],volume=0.5)            
                     self.lastTalkedIndex = talking        
                 else:
-                    self.conversationList = list(talkScript['conversation'])
+                    self.conversationList = list(self.getTalkScript()['conversation'])
                     random.shuffle(self.conversationList)
                     
                     
@@ -1434,7 +1804,7 @@ class mainScene(Scene):
 
         self.turnButtonTimer = 0
         
-        self.ladySays(random.choice(talkScript['greeting']))
+        self.ladySays(random.choice(self.getTalkScript()['greeting']))
         self.playVoice('talk-greeting1.wav',volume=0.5)
 
 
@@ -1499,7 +1869,7 @@ class mainScene(Scene):
             configScene.turnToConfig()
         if mainScene.changedCloth:
             mainScene.changedCloth=False
-            self.ladySays(random.choice(talkScript['costume']))
+            self.ladySays(random.choice(self.getTalkScript()['costume']))
             self.playVoice("talk-costume.wav",volume=0.6)
         self.isHovering=False
         if self.isUserTurn():
@@ -1512,7 +1882,7 @@ class mainScene(Scene):
                         Rs.playSound('move-chess.wav',volume=0.4)
                         self.hoverObj.setParent(None)
                         if self.talkTimer==0 and random.random()<0.2:
-                            self.ladySays(random.choice(talkScript['thinking']))
+                            self.ladySays(random.choice(self.getTalkScript()['thinking']))
                             self.playVoice('talk-thinking1.wav',0.5)
                             
                 for obj in self.promotionGUI.childs:
@@ -1570,7 +1940,7 @@ class mainScene(Scene):
                                         Rs.playSound('move-chess.wav',volume=0.5)
                                         self.hoverObj.setParent(None)
                                         if self.talkTimer==0 and random.random()<0.2:
-                                            self.ladySays(random.choice(talkScript['thinking']))
+                                            self.ladySays(random.choice(self.getTalkScript()['thinking']))
                                             self.playVoice('talk-thinking1.wav',0.5)
 
                                         self.aiWait=random.randint(50,150)
@@ -1637,8 +2007,8 @@ class mainScene(Scene):
         ## Lady Updates ##
         if self.talkTimer==0:
             if random.random()<0.0002:
-                if len(talkScript['talking'])>0:
-                    self.ladySays(talkScript['talking'].pop())
+                if len(self.getTalkScript()['talking'])>0:
+                    self.ladySays(self.getTalkScript()['talking'].pop())
         if random.random()<0.001:
             self.ladyCloseEyeTimer=5
 
