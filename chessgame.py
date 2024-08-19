@@ -814,7 +814,7 @@ musicSheet = {"Calm":'peaceful.mp3',"Jazz":"Jazz.mp3","Japan":"Sakuya.mp3"}
 costumeSheet = {"Normal":"lady_bongcloud.png","Bunny":"lady_bongcloud_bunny.png","Beast":"lady_bongcloud_beast.png"}
 languageSheet = {"English":"en","日本語":"jp","中文":"cn","한국어":"kr"}
 modeSheet = {"FullScreen":True,"Window":False}
-musicVolumeSheet = {"Jazz":0.6,"Japan":0.1} #음량 조절용 시트
+musicVolumeSheet = {"Jazz.mp3":0.6,"Sakuya.mp3":0.1} #음량 조절용 시트
 stockfishSheet = {"Beginner":1000,"Intermediate":2000,"Expert":3000} #stockfish의 강도 조절용 시트
 
 default_screen_size = (1920,1080)
@@ -1048,12 +1048,15 @@ class mainScene(Scene):
     tileSize = 100
     @classmethod
     def playMusic(cls,m):
-        if m in musicVolumeSheet:
-            volume = musicVolumeSheet[m]
-        else:
-            volume = 1
-        Rs.playMusic(musicSheet[m],volume=volume)
-        configScene.credit.text = credit + musicCredits[Rs.currentMusic()]
+        try:
+            if m in musicVolumeSheet:
+                volume = musicVolumeSheet[m]
+            else:
+                volume = 1
+            Rs.playMusic(m,volume=volume)
+            configScene.credit.text = credit + musicCredits[Rs.currentMusic()]
+        except:
+            mainScene.playMusic("Jazz.mp3")
         
     def makeChessObj(self,algCode):
         index = mainScene.fenToSprite.index(algCode)
@@ -2324,32 +2327,16 @@ class configScene(Scene):
         configScene.SEVolumeSlider = Rs.SEVolumeSlider(RPoint(0,0),length=4*t,thickness=10,isVertical=False,color=Cs.orange)
         
         
+        ###
         ##음악 선택 기능
         self.muslcSelectionLabel = textObj("Select Music",size=20)
-        l2 = []
-        for musicLabel in musicSheet:
-            button = textButton(musicLabel,Obj.game_geometry['button']['button1'])
-            if musicLabel == Obj.config["Music"]:
-                button.color = Cs.dark(Cs.tiffanyBlue)
-                button.hoverMode = False
-            def f(m):
-                def _():
-                    mainScene.playMusic(m)
-                        
-                    ##현재 재생중인 음악 버튼 비활성화 처리
-                    for musicButton in self.musicSelectionLayout.childs:
-                        if musicButton.text == m:
-                            musicButton.color = Cs.dark(Cs.tiffanyBlue)
-                            musicButton.hoverMode = False
-                        else:
-                            musicButton.color = Cs.tiffanyBlue
-                            musicButton.hoverMode = True
-                    Obj.config["Music"]=m
-                return _
-            button.connect(f(musicLabel))
-            l2.append(button)
-        self.musicSelectionLayout = layoutObj(pygame.Rect(0,0,t//2,t//2),isVertical=False,childs=l2)
-        
+        def setMusic(sheet,option):
+            mainScene.playMusic(sheet[option])
+            Obj.config["Music"]=sheet[option]
+        self.musicSelectionLayout = self.makeButtonLayout(musicSheet,Obj.config["Music"],setMusic)
+        ###
+
+
         
         ##코스튬 선택 기능
         self.costumeLabel = textObj("Costume",size=20)
