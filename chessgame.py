@@ -262,16 +262,16 @@ talkScript_kr = {
     "체스의 마법사라고 불러도 될까요, 선생님?"
 ],
     'talking':[
-    "항상 선생님을 뵙는 것이 기다려집니다.",
+    "항상 선생님을 뵙는 것이 기다려져요.",
     "몸조심하세요, 선생님. 선생님의 건강과 안녕이 가장 중요합니다.",
     "체스는 집중력과 주의력을 향상시킬 수 있습니다, 선생님.",
-    "선생님과 함께할 수 있어 감사드립니다.",
-    "오늘 날씨가 정말 아름답습니다, 선생님.",
+    "선생님과 함께할 수 있어 기쁩니다.",
+    "오늘 날씨가 정말 아름답네요, 선생님.",
     "정말 멋진 날입니다, 선생님.",
     "태양이 너무 아름답게 빛나고 있네요.",
     "경기를 하기 좋은 날입니다.",
     "오늘 날씨가 게임하기에 아주 좋아요, 선생님.",
-    "오늘 같은 아름다운 날에는 체스 게임이 딱입니다, 선생님.",
+    "오늘 같이 좋은 날에는 체스 게임이 제격입니다, 선생님.",
 ],
     'newgame':["함께 게임을 즐겨봅시다, 선생님.",
                "게임을 시작하죠, 선생님.",
@@ -912,11 +912,9 @@ def stockFishHintProcess(fen,path,rating):
     stockfish = Obj.stockfish_hint
     stockfish.set_fen_position(fen)
     l = stockfish.get_top_moves(3)
-    print("HINT AI Params",stockfish.get_parameters())
     if len(l)>0:
         bestMove = l[0]
         makeAIHintData(bestMove["Move"],fen,path=Obj.hint)
-        print("Hint Thinks",l)
                 
 def stockFishProcess(time,fen,path,bongcloudOpened,isBestMode,rating):
     color = fen.split(' ')[1]
@@ -933,14 +931,12 @@ def stockFishProcess(time,fen,path,bongcloudOpened,isBestMode,rating):
     stockfish = Obj.stockfish_play
     if random.random()>Obj.AIcondition:
         stockfish.set_elo_rating(rating)
-        print("Play AI Params",stockfish.get_parameters())
     else: # Dojitko Move
         stockfish.set_elo_rating(1000)
     stockfish.set_fen_position(fen)
     
     eval = stockfish.get_evaluation()
     tMoves = stockfish.get_top_moves(5)
-    print("Play Thinks",tMoves)
     tMoves = tMoves[::-1]
     move = ""
 
@@ -965,16 +961,13 @@ def stockFishProcess(time,fen,path,bongcloudOpened,isBestMode,rating):
         else: ## Ai 움직일 수 없음 (체크메이트 상태)
             move = "resign" # Make Best Move
             makeAIData(move,eval=eval,topMoves=_topMoves)
-            print("AI Resigned")
             return
 
 
     if bongcloudOpened:
         move = tMoves[-1]
         b_move = stockfish.get_best_move()
-        print("Play Best Move",b_move)
         move["Move"] = b_move
-        print("checkKingBack",Obj.checkKingBack(chess.Board(fen),b_move))
         if not Obj.checkKingBack(chess.Board(fen),b_move):
             makeAIData(move,eval=eval,topMoves=_topMoves)
             return
@@ -1253,7 +1246,6 @@ class mainScene(Scene):
         self.talkObj = longTextObj(sentence,geometry,size=size,textWidth=width,font=self.getFont())
         self.talkBgObj = rectObj(Rs.padRect(self.talkObj.boundary,size),color=Cs.black)
         self.talkObj = longTextObj("",geometry,size=size,textWidth=width,font=self.getFont())
-        print(self.getFont())
         self.talkObj.alpha=255
         self.talkBgObj.alpha = 0
 
@@ -1328,7 +1320,6 @@ class mainScene(Scene):
             self.turnButton = textButton(turnText+t,Obj.game_geometry['button']['button2'],color=c[0],fontColor=c[1],hoverMode=False,font=self.getFont())    
             self.turnButton.center = self.boardDisplay[4][4].geometryPos + 5*RPoint(0,Obj.game_geometry['board']['TileSize'])
             self.turnButton.update()
-            print(mainScene.cur_lang)
 
 
     #display 상에서의 좌표를 체스 좌표로 전환하는 함수
@@ -1478,7 +1469,6 @@ class mainScene(Scene):
                         winning = True
 
                     if not self.ladyIsOnMate and mate!=None:
-                        print("Mate",mate)
                         if self.currentColor=='w':
                             ladyWinning = 1
                         else:
@@ -1500,7 +1490,6 @@ class mainScene(Scene):
                         self.lastChessObj = self.moveByString(move)
                     except:
                         makeAIData("")
-                        print("EXCEPTION ERROR")
                         legalMoves = [str(x) for x in list(Obj.config["Board"].legal_moves)]
                         self.lastChessObj = self.moveByString(random.choice(legalMoves))
                         return
@@ -1924,7 +1913,6 @@ class mainScene(Scene):
             x,y = self.chessPosToPos(chess.square_name(k_pos))
             obj.pos= self.boardDisplay[y][x].geometryPos
             Rs.fadeAnimation(obj,time=250,alpha=150)
-            print("KING",k_pos,self.currentColor)
             
 
         self.turnButton.text = turnText+t
@@ -2073,7 +2061,7 @@ class mainScene(Scene):
 
         ## Lady Updates ##
         if self.talkTimer==0:
-            if random.random()<0.0002:
+            if random.random()<0.0001:
                 if len(self.getTalkScript()['talking'])>0:
                     self.ladySays(self.getTalkScript()['talking'].pop())
         if random.random()<0.001:
@@ -2293,7 +2281,6 @@ class configScene(Scene):
         return layout
     def initOnce(self):
         ##TODO: Make Config Scene Objects ##
-        print(Obj.config["PGN"])
                 
         t = Obj.game_geometry['board']['TileSize']
         w,h = Rs.screen.get_rect().size
@@ -2496,7 +2483,6 @@ if __name__=="__main__":
     Rs.target_fps = 60
     Obj.stockfish_hint.set_depth(20)
     Obj.stockfish_hint.set_skill_level(20)
-    print(Obj.stockfish_hint.get_parameters())
 
     ##TODO: 저장된 config 상태 적용
     if os.path.isfile(Obj.configPath):
