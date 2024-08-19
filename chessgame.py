@@ -3,10 +3,7 @@ import chess
 from REMOLib import *
 
 ##TODO: AI의 체스 레이팅을 조절하는 기능을 추가한다.
-##TODO: 미소녀와의 대화 번역을 지원한다.
-### getTalkScript 메소드를 만들고, ladySays 메소드에서 현재 언어를 참고해서 폰트를 쓴다.
 ##TODO: 미소녀를 체크메이트 할 경우 게임이 튕기는 버그 존재
-##TODO: 체크하거나 당할때 소리가 나면 좋다.
 
 
 stockFishPath = "stockfish-windows-2022-x86-64-avx2.exe"
@@ -2209,6 +2206,50 @@ class mainScene(Scene):
         return
 
 class configScene(Scene):
+
+    ##리팩토링 필요성에 의해 새로 짠 버튼레이아웃 함수
+    def makeButtonLayout(self,sheet,curState,settingFunc):
+        '''
+        sheet: 버튼에 연결될 옵션 {'옵션명':옵션값}
+        curState: 현재 옵션 설정 상태
+        settingFunc: 버튼을 눌렀을 때 실행할 함수. 인자로 선택된 옵션을 받는다.
+        settingFunc(sheet,option)
+        '''
+
+        t = Obj.game_geometry['board']['TileSize']
+
+        ##버튼 레이아웃 생성##
+        layout = layoutObj(pygame.Rect(0,0,t//2,t//2),isVertical=False)
+            
+
+        ##버튼 생성##
+        for option in sheet:
+            button = textButton(str(option),Obj.game_geometry['button']['button1'])
+            ##버튼 색상 설정##
+            if sheet[option] == curState:
+                button.color = Cs.dark(Cs.tiffanyBlue)
+                button.hoverMode = False
+                
+            ##함수 제너레이터
+            def f(_sheet,_option):
+                def _():
+                    Rs.acquireDrawLock()
+                    settingFunc(_sheet,_option) ##옵션 설정 함수 실행
+                    for button in layout.childs:
+                        ##선택된 버튼은 색을 진하게, 선택되지 않은 버튼은 밝게
+                        if button.text == str(_option):
+                            button.color = Cs.dark(Cs.tiffanyBlue)
+                            button.hoverMode = False
+                        else:
+                            button.color = Cs.tiffanyBlue
+                            button.hoverMode = True
+                    Rs.releaseDrawLock()
+                    mainScene.saveConfig() ##설정 저장
+                return _
+            button.connect(f(sheet,option))
+            button.setParent(layout)
+
+        return layout
     def initOnce(self):
         ##TODO: Make Config Scene Objects ##
         print(Obj.config["PGN"])
@@ -2226,6 +2267,8 @@ class configScene(Scene):
         configScene.configBackButton.connect(configBack)
         configScene.configBackButton.alpha = 100
         
+
+        ##게임 크레딧
         self.creditButton = textButton("credit",Obj.game_geometry["credit"]["Button"],color=Cs.black,fontColor=Cs.grey,alpha=100)
         self.showCredit = False
         def show():
@@ -2233,28 +2276,36 @@ class configScene(Scene):
         self.creditButton.connect(show)
         
         configScene.credit = longTextObj(credit,Obj.game_geometry["credit"]["Pos"],textWidth=Obj.game_geometry['board']['TileSize']*6,color=Cs.grey)
-        
-        ##해상도 조절 버튼##
-        self.resolutionLabel = textObj("Resolution",size=20)
-        temp_l = []
-        cur_res = Rs.screen.get_rect().size[0]
-        for res in [1080,1440,1920,2560]:
-            button = textButton(str(res),Obj.game_geometry['button']['button1'])
-            def f(r):
-                def _():
-                    Obj.config["Resolution"]=r
-                    Rs.setWindowRes((r,int(r*1080/1920)))
-                    mainScene.saveConfig()
-                return _
-            button.connect(f(res))
+        ###
 
-            temp_l.append(button)
-            
-        self.resolutionLayout = layoutObj(pygame.Rect(0,0,t//2,t//2),isVertical=False,childs=temp_l)
+
+        ###
+        ##해상도 조절 관련 오브젝트
+        self.resolutionLabel = textObj("Resolution",size=20)
+
+        #게임 해상도 설정 시트#
+        resolutionSheet = {x:int(x*1080/1920) for x in [1080,1440,1920,2560]}
+        #게임 해상도 설정 함수
+        def setResolution(sheet,option):
+            Obj.config["Resolution"]=sheet[option]
+            Rs.setWindowRes((option,sheet[option]))
+
+        try:
+            cur_res = Obj.config["Resolution"]
+        except:
+            cur_res = 1920
+
+        #해상도 버튼 레이아웃 생성#
+        self.resolutionLayout = self.makeButtonLayout(resolutionSheet,cur_res,setResolution)
+
+        ###
+
+
+        
+        ###        
+        ##풀스크린 조절 오브젝트
         self.modeLabel = textObj("Game Mode",size=20)
-        
-        
-        ##풀스크린 조절 버튼
+
         l=[]
         for mode in modeSheet:
             button = textButton(mode,Obj.game_geometry['button']['button1'])
@@ -2480,7 +2531,14 @@ if __name__=="__main__":
             Obj.config = Obj.default_config
     
 
-    window = REMOGame(window_resolution=(1920,1080),screen_size=(1920,1080),fullscreen=False,caption="Play Chess with Lady Bongcloud")
+    ##게임 해상도 설정
+    try:
+        res = Obj.config["Resolution"]
+        win_res = (int(res*1920/1080),res)
+    except:
+        win_res = (1920,1080)
+
+    window = REMOGame(window_resolution=win_res,screen_size=(1920,1080),fullscreen=False,caption="Play Chess with Lady Bongcloud")
     window.setCurrentScene(Scenes.mainScene)
     window.run()
 
