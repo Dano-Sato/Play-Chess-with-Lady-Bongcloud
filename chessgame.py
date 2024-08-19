@@ -2224,11 +2224,17 @@ class configScene(Scene):
 
         ##버튼 생성##
         for option in sheet:
-            button = textButton(str(option),Obj.game_geometry['button']['button1'])
-            ##버튼 색상 설정##
+
+            ##선택된 옵션은 색을 진하게, 선택되지 않은 옵션은 밝게
             if sheet[option] == curState:
-                button.color = Cs.dark(Cs.tiffanyBlue)
-                button.hoverMode = False
+                _color = Cs.dark(Cs.tiffanyBlue)
+                _hoverMode = False
+            else:
+                _color = Cs.tiffanyBlue
+                _hoverMode = True
+
+
+            button = textButton(str(option),Obj.game_geometry['button']['button1'],color=_color,hoverMode=_hoverMode)
                 
             ##함수 제너레이터
             def f(_sheet,_option):
@@ -2282,19 +2288,14 @@ class configScene(Scene):
         ###
         ##해상도 조절 관련 오브젝트
         self.resolutionLabel = textObj("Resolution",size=20)
-
-        #게임 해상도 설정 시트#
         resolutionSheet = {x:int(x*1080/1920) for x in [1080,1440,1920,2560]}
-        #게임 해상도 설정 함수
         def setResolution(sheet,option):
             Obj.config["Resolution"]=sheet[option]
             Rs.setWindowRes((option,sheet[option]))
-
         try:
             cur_res = Obj.config["Resolution"]
         except:
             cur_res = 1920
-
         #해상도 버튼 레이아웃 생성#
         self.resolutionLayout = self.makeButtonLayout(resolutionSheet,cur_res,setResolution)
 
@@ -2305,30 +2306,11 @@ class configScene(Scene):
         ###        
         ##풀스크린 조절 오브젝트
         self.modeLabel = textObj("Game Mode",size=20)
-
-        l=[]
-        for mode in modeSheet:
-            button = textButton(mode,Obj.game_geometry['button']['button1'])
-            if modeSheet[mode] == Rs.isFullScreen():
-                button.color = Cs.dark(Cs.tiffanyBlue)
-                button.hoverMode = False
-                
-            def f(m):
-                def _():
-                    Obj.config["FullScreen"]=m
-                    Rs.setFullScreen(modeSheet[m])
-                    for button in self.modeLayout.childs:
-                        if button.text == m:
-                            button.color = Cs.dark(Cs.tiffanyBlue)
-                            button.hoverMode = False
-                        else:
-                            button.color = Cs.tiffanyBlue
-                            button.hoverMode = True
-                    mainScene.saveConfig()
-                return _
-            button.connect(f(mode))
-            l.append(button)
-        self.modeLayout = layoutObj(pygame.Rect(0,0,t//2,t//2),isVertical=False,childs=l)
+        def setScreenMode(sheet,option):
+            Obj.config["FullScreen"]=sheet[option]
+            Rs.setFullScreen(sheet[option])
+        self.modeLayout = self.makeButtonLayout(modeSheet,Rs.isFullScreen(),setScreenMode)
+        ###
         
         ##음악 볼륨 조절 기능
         self.musicVolumeLabel = textObj("Music Volume",size=20)
@@ -2369,7 +2351,7 @@ class configScene(Scene):
         self.musicSelectionLayout = layoutObj(pygame.Rect(0,0,t//2,t//2),isVertical=False,childs=l2)
         
         
-        ##TODO: 코스튬 선택 기능
+        ##코스튬 선택 기능
         self.costumeLabel = textObj("Costume",size=20)
         l3 = []
         for costumeLabel in costumeSheet:
