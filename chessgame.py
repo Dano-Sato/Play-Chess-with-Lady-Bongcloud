@@ -821,7 +821,9 @@ class Obj():
     think = 'chessgame-ai.think'
     hint = 'chessgame-ai.hint'
     configPath = 'chessgame.config'
-    default_config = {"Resolution":1920,"FullScreen":False,"Music":"Jazz.mp3","Costume":"lady_bongcloud.png","Rating":ratingSheet["Intermediate"],"UserIsWhite":False,"Swapped":False,"Volume":1.0,"HintCount":0,"Board":chess.Board(),"PGN":""} # config 정보를 저장
+    default_config = {"Resolution":1080,"FullScreen":False,"Music":"peaceful.mp3","Costume":"lady_bongcloud.png",
+                      "Rating":ratingSheet["Intermediate"],"UserIsWhite":False,"Swapped":False,"Volume":1.0,
+                      "HintCount":0,"Board":chess.Board(),"PGN":""} # config 정보를 저장
     config = {}
     AIcondition = 0.3
     hintCountMax = 4
