@@ -217,7 +217,8 @@ talkScript = {
             "It adds a touch of excitement, doesn't it?",                                                
             ],
     'winning':["Looks like you don't want to play game now, sir."
-    ]
+    ],
+    'end':["It was a great game,sir. Would you like to play another round?",]
 }
 
 talkScript_kr = {
@@ -226,10 +227,8 @@ talkScript_kr = {
     "안녕하세요, 선생님. 오늘 기분은 어떠신가요?",
     "좋은 하루 보내시길 바랍니다, 선생님.",
     "안녕하세요, 선생님. 오늘 뵙게 되어 기쁩니다.",
-    "안녕하세요, 선생님. 오늘 하루도 잘 보내시길 바랍니다.",
     "오늘 뵙게 되어 반갑습니다, 선생님.",
     "안녕하세요, 선생님. 오늘도 좋은 하루를 보내고 계시길 바랍니다.",
-    "선생님을 뵐 때마다 항상 반갑습니다.",
     "오늘 이곳에 와주셔서 기쁩니다, 선생님."
 ],
     'praise':[
@@ -241,10 +240,8 @@ talkScript_kr = {
     "선생님의 플레이에 감명받았습니다.",
     "정말 잘하셨습니다, 선생님.",
     "선생님은 게임에 대한 훌륭한 감각을 지니고 계십니다.",
-    "선생님의 용기가 저를 감동시킵니다.",
-    "이 게임이 더욱 흥미로워졌습니다.",
     "선생님께서는 이 게임에 진정한 재능이 있으십니다.",
-    "어떻게 전개될지 무척 궁금해집니다.",
+    "앞으로 어떻게 전개될지 무척 궁금합니다.",
 ],
     'blunder':[
     "걱정하지 마세요, 선생님. 누구나 실수를 하는 법이니까요.",
@@ -265,18 +262,16 @@ talkScript_kr = {
     "체스의 마법사라고 불러도 될까요, 선생님?"
 ],
     'talking':[
-    "항상 선생님을 뵙는 것을 고대합니다.",
-    "선생님의 우정에 진심으로 감사드립니다.",
+    "항상 선생님을 뵙는 것이 기다려집니다.",
     "몸조심하세요, 선생님. 선생님의 건강과 안녕이 가장 중요합니다.",
-    "체스는 상대의 움직임을 예측하는 법을 가르쳐줄 수 있습니다.",
     "체스는 집중력과 주의력을 향상시킬 수 있습니다, 선생님.",
     "선생님과 함께할 수 있어 감사드립니다.",
     "오늘 날씨가 정말 아름답습니다, 선생님.",
     "정말 멋진 날입니다, 선생님.",
-    "태양이 너무 밝게 빛나고 있네요.",
+    "태양이 너무 아름답게 빛나고 있네요.",
     "경기를 하기 좋은 날입니다.",
-    "오늘 날씨가 경기하기에 완벽합니다, 선생님.",
-    "이 아름다운 날은 체스 게임에 딱 맞습니다, 선생님.",
+    "오늘 날씨가 게임하기에 아주 좋아요, 선생님.",
+    "오늘 같은 아름다운 날에는 체스 게임이 딱입니다, 선생님.",
 ],
     'newgame':["함께 게임을 즐겨봅시다, 선생님.",
                "게임을 시작하죠, 선생님.",
@@ -291,30 +286,24 @@ talkScript_kr = {
            "... 흥분하신 것 같네요, 선생님.",
            "...당신은 이것에 대해 열정적으로 보입니다, 선생님."],
     'thinking':['흠흠.........',
-                '보여주세요, 선생님...',
                 '음음........',
                 "흠, 알았어요...",
                 "흠, 알겠습니다...",
                 "생각 좀...",
-                "흠, 흥미 롭군요...",
+                "흠, 흥미롭군요...",
                 "음, 아마도..."
                 ],
     'undo-ok':['음... 알겠습니다, 선생님, 이번 한 번만.',
                "이번에는 허락하겠습니다, 선생님.",
                "알겠습니다, 선생님, 하지만 이번 한 번만.",
                "음, 이번 한 번만요, 선생님.",
-               "음, 특별한 경우입니다, 선생님.",
-               "이번 요청은 허락하겠습니다, 선생님.",
-               "이번 한 번만 허락하겠습니다, 선생님."],
+               "음, 특별한 경우입니다, 선생님.",],
     'undo-reject':["아니요, 선생님, 그렇게 하시면 안 됩니다.",
                    "그건 적절하지 않을 것 같습니다, 선생님.",
-                   "그건 허락할 수 없습니다.",
                    "죄송합니다만, 그건 규칙에 어긋납니다.",
                    "그렇게 할 수 없습니다, 선생님.",
                    "죄송하지만 동의할 수 없습니다.", 
                    "죄송합니다, 선생님.",
-                   "유감스럽게도 거절해야 합니다.",
-                   "그건 허락할 수 없습니다, 선생님."
                    ],
     'hint-ok':["#이 좋은 선택이 될 것 같습니다.",
                "#을 고려해 보셨나요?",
@@ -339,10 +328,8 @@ talkScript_kr = {
 ],
     'conversation':["제 이름은 봉클라우드입니다, 선생님. 하지만 샬롯이라고 부르셔도 괜찮아요.",
                     "봉클라우드 공격은 저희 가문에서 수 세기 동안 전해 내려온 전통이랍니다.",
-                    "우리 가문은 봉클라우드 공격을 신성한 체스 동작으로 여깁니다.",
                     "선생님, 오늘도 즐거운 하루 되시길 바랍니다.",
-                    "선생님께서 오늘도 좋은 하루를 보내고 계시길 믿습니다.",
-                    "선생님을 섬길 수 있어 기쁩니다.",
+                    "선생님을 받들 수 있어 기쁩니다.",
                     "이 아름다운 날, 선생님과 함께할 수 있어 정말 운이 좋다고 생각합니다.",
                     "선생님, 이보다 더 완벽한 날은 없을 거예요.",
                     "오늘 하루의 아름다움도 선생님께서 저에게 주시는 기쁨에 비하면 희미하게 느껴집니다.",
@@ -350,7 +337,7 @@ talkScript_kr = {
                     "힌트는 조금 드리겠지만, 너무 많지는 않을 거예요.",
                     "선생님은 제 삶에 빛을 가져다주시는 분이세요.",
                     "선생님과 함께하는 모든 순간이 저에게는 소중합니다.",
-                    "선생님이 제 인생에 계셔서 정말로 행복합니다.", 
+                    "선생님이 저와 함께라서 정말로 행복합니다.", 
                    "당신은 제 세상을 더 나은 곳으로 만들어주십니다, 선생님.",
                    "봉클라우드 어택의 아름다움을 이해하고 계신가요?",
                    "봉클라우드 어택에는 대담함과 창의력이 필요합니다.",
@@ -374,7 +361,7 @@ talkScript_kr = {
                    "선생님은 제가 가장 소중히 여기는 분이십니다.",
                    "선생님은 회색 세상 속 제 햇살이십니다.",
                    "당신 가까이에 있는 것만으로도 순수한 행복을 느낍니다.",
-                   "선생님과 함께라면, 제가 있어야 할 곳을 찾은 것 같습니다."
+                   "선생님과 함께라면, 저는 있어야 할 곳을 찾은 것 같습니다."
 
                    ],
     'costume':["선생님, 이 옷이 더 마음에 드시나요?",
@@ -397,7 +384,9 @@ talkScript_kr = {
     "조금 더 흥미롭게 느껴지지 않으시나요, 선생님?"
 ],
     'winning':["지금 게임을 하고 싶지 않으신 것 같네요, 선생님."
-    ]
+    ],
+    'end':["즐거운 경기였습니다. 선생님. 한 판 더 하시겠어요?",]
+
 }
 
 
@@ -588,7 +577,8 @@ talkScript_jp = {
     "ゲームに面白いひねりを加えてくれますね。",
     "それは少し興奮を追加してくれるでしょう？"
 ],
-    'winning':["今はゲームをしたくないようですね、サー"]
+    'winning':["今はゲームをしたくないようですね、サー"],
+    'end':["楽しい試合でした。もう一局いかがですか？"]
 }
 
 talkScript_cn = {
@@ -766,7 +756,9 @@ talkScript_cn = {
 ],
     'winning':[
     "看起来您现在不太想下棋了，先生。"
-]
+],
+'end':[
+"这是一场愉快的比赛。您想再来一局吗？"]
 }
 
 ### 대화 스크립트 끝
@@ -815,7 +807,7 @@ costumeSheet = {"Normal":"lady_bongcloud.png","Bunny":"lady_bongcloud_bunny.png"
 languageSheet = {"English":"en","日本語":"jp","中文":"cn","한국어":"kr"}
 modeSheet = {"FullScreen":True,"Window":False}
 musicVolumeSheet = {"Jazz.mp3":0.6,"Sakuya.mp3":0.1} #음량 조절용 시트
-stockfishSheet = {"Beginner":1000,"Intermediate":2000,"Expert":3000} #stockfish의 강도 조절용 시트
+ratingSheet = {"Beginner":600,"Intermediate":1200,"Advanced":1800,"Expert":2400}
 
 default_screen_size = (1920,1080)
 window =Rs.new(REMOGame)
@@ -823,14 +815,13 @@ window =Rs.new(REMOGame)
 class Obj():
     stockfish_hint = Stockfish(path=stockFishPath,parameters={"Threads":4}) ## Stockfish로 힌트를 주는 AI
     stockfish_play = Stockfish(path=stockFishPath,parameters={"Threads":4}) ## Stockfish로 게임을 하는 AI
-    chess_rating = 3000 # AI의 체스 레이팅
     game_geometry = copy.deepcopy(game_geometry_n)
     board = chess.Board()
     thinkOfAI = ""
     think = 'chessgame-ai.think'
     hint = 'chessgame-ai.hint'
     configPath = 'chessgame.config'
-    default_config = {"Resolution":1920,"FullScreen":"FullScreen","Music":"Calm","Costume":"Normal","UserIsWhite":False,"Swapped":False,"Volume":1.0,"HintCount":0,"Board":chess.Board(),"PGN":""} # config 정보를 저장
+    default_config = {"Resolution":1920,"FullScreen":False,"Music":"Jazz.mp3","Costume":"lady_bongcloud.png","Rating":ratingSheet["Intermediate"],"UserIsWhite":False,"Swapped":False,"Volume":1.0,"HintCount":0,"Board":chess.Board(),"PGN":""} # config 정보를 저장
     config = {}
     AIcondition = 0.3
     hintCountMax = 4
@@ -854,6 +845,15 @@ class Obj():
             return True
         return False        
     
+
+    ##체스 레이팅을 가져오는 함수
+    @classmethod
+    def getChessRating(cls):
+        try:
+            return Obj.config["rating"]
+        except:
+            Obj.config["rating"] = ratingSheet["Intermediate"]
+            return Obj.config["rating"]
     
                 
         
@@ -906,18 +906,17 @@ def updateGeoAndOpenGame():
     REMOGame.setCurrentScene(Scenes.mainScene)
     window.run()
     
-def stockFishHintProcess(fen,path):
+def stockFishHintProcess(fen,path,rating):
     stockfish = Obj.stockfish_hint
-    c = random.randint(3000,4000) ## Hint AI의 강도를 랜덤하게, 하지만 고수의 시점으로 설정한다.
-    stockfish.set_elo_rating(c)
     stockfish.set_fen_position(fen)
     l = stockfish.get_top_moves(3)
+    print("HINT AI Params",stockfish.get_parameters())
     if len(l)>0:
         bestMove = l[0]
         makeAIHintData(bestMove["Move"],fen,path=Obj.hint)
-        print(bestMove)
+        print("Hint Thinks",l)
                 
-def stockFishProcess(time,fen,path,bongcloudOpened,isBestMode):
+def stockFishProcess(time,fen,path,bongcloudOpened,isBestMode,rating):
     color = fen.split(' ')[1]
     if color == 'b':
         def moveFilter(x):
@@ -931,42 +930,52 @@ def stockFishProcess(time,fen,path,bongcloudOpened,isBestMode):
             return -100 < x["Centipawn"] < 300
     stockfish = Obj.stockfish_play
     if random.random()>Obj.AIcondition:
-        stockfish.set_elo_rating(3000)
+        stockfish.set_elo_rating(rating)
+        print("Play AI Params",stockfish.get_parameters())
     else: # Dojitko Move
         stockfish.set_elo_rating(1000)
     stockfish.set_fen_position(fen)
     
     eval = stockfish.get_evaluation()
     tMoves = stockfish.get_top_moves(5)
+    print("Play Thinks",tMoves)
     tMoves = tMoves[::-1]
     move = ""
+
+
 
     b = chess.Board(fen)
     ##봉클라우드를 위해 킹이 되돌아가는 무브를 제거한다.
     _topMoves=[]
-    if len(tMoves)>1:
-        for move in tMoves:
-            m = move["Move"]
-            s = m[:2]
-            e = m[2:4]
-            if str(b.piece_at(chess.parse_square(s))).upper()=="K" and e in ["e1","e8"]:
-                continue
-            else:
-                _topMoves.append(move)
-    elif len(tMoves)==1:
-        move = tMoves[-1] # Make Best Move
-        makeAIData(move,eval=eval,topMoves=_topMoves)
-        return
-    else: ## Ai 움직일 수 없음 (체크메이트 상태)
-        move = "resign" # Make Best Move
-        makeAIData(move,eval=eval,topMoves=_topMoves)
-        return
+    for move in tMoves:
+        m = move["Move"]
+        if Obj.checkKingBack(b,m):
+            continue
+        else:
+            _topMoves.append(move)
 
-    
-    if isBestMode:
-        move = _topMoves[-1] # Make Best Move
-        makeAIData(move,eval=eval,topMoves=_topMoves)
-        return
+
+    if _topMoves==[]: #왕이 튀는거 말곤 답이 없는 상황일때
+        if len(tMoves)>0:
+            move = tMoves[-1] # Make Best Move
+            makeAIData(move,eval=eval,topMoves=_topMoves)
+            return
+        else: ## Ai 움직일 수 없음 (체크메이트 상태)
+            move = "resign" # Make Best Move
+            makeAIData(move,eval=eval,topMoves=_topMoves)
+            print("AI Resigned")
+            return
+
+
+    if bongcloudOpened:
+        move = tMoves[-1]
+        b_move = stockfish.get_best_move()
+        print("Play Best Move",b_move)
+        move["Move"] = b_move
+        print("checkKingBack",Obj.checkKingBack(chess.Board(fen),b_move))
+        if not Obj.checkKingBack(chess.Board(fen),b_move):
+            makeAIData(move,eval=eval,topMoves=_topMoves)
+            return
     
     #Pawn opening for bongcloud
     if not bongcloudOpened:
@@ -1435,7 +1444,7 @@ class mainScene(Scene):
                 self.hintProc = None
         else:
             if self.aboutHint["Fen"]!=Obj.config["Board"].fen():
-                self.hintProc = Process(target=stockFishHintProcess,args=(Obj.config["Board"].fen(),stockFishPath))
+                self.hintProc = Process(target=stockFishHintProcess,args=(Obj.config["Board"].fen(),stockFishPath,Obj.getChessRating()))
                 self.hintProc.start()
         None
                 
@@ -1449,12 +1458,16 @@ class mainScene(Scene):
                 data = pickle.load(open(Obj.think,'rb'))
                 #print(data)#DEBUG
                 if data['Move']!="" and data['Move']!="Thinking":
-                    move = data['Move']['Move']
-                    cur_cp = data['Move']['Centipawn']
-                    mate = data['Move']['Mate']
-                    winning = False
+                    try:
+                        move = data['Move']['Move']
+                        cur_cp = data['Move']['Centipawn']
+                        mate = data['Move']['Mate']
+                        winning = False
+                    except:
+                        return
                     if move == 'resign': ## AI 패배
                         return
+
                     if cur_cp != None and abs(cur_cp)>800 and not Obj.config["Swapped"]:
                         self.swappedColorTimer=25 ## 컬러스왑 불가
                         Obj.config["Swapped"]=True
@@ -1463,11 +1476,17 @@ class mainScene(Scene):
                         winning = True
 
                     if not self.ladyIsOnMate and mate!=None:
-                        self.ladyIsOnMate = True
-                        self.swappedColorTimer=25 ## 컬러스왑 불가
-                        Obj.config["Swapped"]=True
-                        self.ladySays(random.choice(self.getTalkScript()['mate']))
-                        self.playVoice("talk-checkmate.wav",0.5)
+                        print("Mate",mate)
+                        if self.currentColor=='w':
+                            ladyWinning = 1
+                        else:
+                            ladyWinning = -1
+                        if mate==ladyWinning:
+                            self.ladyIsOnMate = True
+                            self.swappedColorTimer=25 ## 컬러스왑 불가
+                            Obj.config["Swapped"]=True
+                            self.ladySays(random.choice(self.getTalkScript()['mate']))
+                            self.playVoice("talk-checkmate.wav",0.5)
                 
                     if 'e1' in move or 'e8' in move or Obj.config["Board"].fullmove_number>3:
                         self.bongcloudOpened = True #King Moved or too late to bongcloud
@@ -1525,7 +1544,7 @@ class mainScene(Scene):
             c = (Obj.config["Board"].fullmove_number/200.0)
             if random.random()<c:
                 self.ladyBestMode = True # 턴이진행될수록 bestMode 진입확률 증가
-            self.proc = Process(target=stockFishProcess,args=(1000,Obj.config["Board"].fen(),stockFishPath,self.bongcloudOpened,self.ladyBestMode))
+            self.proc = Process(target=stockFishProcess,args=(1000,Obj.config["Board"].fen(),stockFishPath,self.bongcloudOpened,self.ladyBestMode,Obj.getChessRating()))
             self.proc.start()
             makeAIData("Thinking")
             
@@ -1629,7 +1648,11 @@ class mainScene(Scene):
 
         #Init Lady Sprites# 
         ladyGeometry= Obj.game_geometry['lady']
-        mainScene.ladyObj = imageObj(costumeSheet[Obj.config["Costume"]],pos=ladyGeometry['Pos'],scale=ladyGeometry['Scale'])
+        try:
+            mainScene.ladyObj = imageObj(Obj.config["Costume"],pos=ladyGeometry['Pos'],scale=ladyGeometry['Scale'])
+        except:
+            mainScene.ladyObj = imageObj("lady_bongcloud.png",pos=ladyGeometry['Pos'],scale=ladyGeometry['Scale'])
+
         self.ladyThinkingObj = imageObj('lady_bongcloud_thinking.png',pos=ladyGeometry['Pos'],scale=ladyGeometry['Scale'])
         self.ladySmileObj = imageObj('lady_bongcloud_happy.png',pos=ladyGeometry['Pos'],scale=ladyGeometry['Scale'])
         self.showSmile = False
@@ -1865,10 +1888,13 @@ class mainScene(Scene):
         
         if Obj.config["Board"].is_checkmate():
             t = UI_turn["checkmate"][mainScene.cur_lang]
+            self.ladySays(random.choice(self.getTalkScript()['end']))
         elif Obj.config["Board"].is_stalemate():
             t = "Stalemate"
+            self.ladySays(random.choice(self.getTalkScript()['end']))
         elif Obj.config["Board"].is_variant_draw():
             t = "Draw"
+            self.ladySays(random.choice(self.getTalkScript()['end']))
         else:
             if self.isUserTurn():
                 t = UI_turn["my-turn"][mainScene.cur_lang]
@@ -2267,14 +2293,14 @@ class configScene(Scene):
         w,h = Rs.screen.get_rect().size
         self.blackBoard = rectObj(Rs.padRect(Rs.screen.get_rect(),-t//2),color=Cs.black,alpha=200)
         self.configLabel = textObj("Config",pos=(t*2,t),size=t//3)
-        configScene.configBackButton = textButton("Go Back",pygame.Rect(w-4*t,h-2*t,t*2,t),color=Cs.white,fontColor=Cs.black)
+        configScene.configBackButton = textButton("Go Back",pygame.Rect(w-4*t,h-2*t,t*2,t),color=Cs.grey,fontColor=Cs.black)
         def configBack():
             #TODO: config 상태 저장
             mainScene.saveConfig()
             mainScene.freezeTimer=10
             Rs.setCurrentScene(Scenes.mainScene)
         configScene.configBackButton.connect(configBack)
-        configScene.configBackButton.alpha = 100
+        configScene.configBackButton.alpha = 225
         
 
         ##게임 크레딧
@@ -2340,78 +2366,55 @@ class configScene(Scene):
         
         ##코스튬 선택 기능
         self.costumeLabel = textObj("Costume",size=20)
-        l3 = []
-        for costumeLabel in costumeSheet:
-            button = textButton(costumeLabel,Obj.game_geometry['button']['button1'])
-            if costumeLabel == Obj.config["Costume"]:
-                button.color = Cs.dark(Cs.tiffanyBlue)
-                button.hoverMode = False
-            def f(m):
-                def _():
-                    mainScene.ladyObj.setImage(costumeSheet[m])
-                        
-                    ##현재 재생중인 음악 버튼 비활성화 처리
-                    for costumeButton in self.costumeSelectionLayout.childs:
-                        if costumeButton.text == m:
-                            costumeButton.color = Cs.dark(Cs.tiffanyBlue)
-                            costumeButton.hoverMode = False
-                        else:
-                            costumeButton.color = Cs.tiffanyBlue
-                            costumeButton.hoverMode = True
-                    Obj.config["Costume"]=m
-                    mainScene.changedCloth=True
-                return _
-            button.connect(f(costumeLabel))
-            l3.append(button)
-        self.costumeSelectionLayout = layoutObj(pygame.Rect(0,0,t//2,t//2),isVertical=False,childs=l3)
-                
-        self.languageLabel = textObj("Language",size=20)
-        l3 = []
-        for languageLabel in languageSheet:
-            value = languageSheet[languageLabel]
+        def setCostume(sheet,option):
+            mainScene.ladyObj.setImage(sheet[option])
+            Obj.config["Costume"]=sheet[option]
+            mainScene.changedCloth=True
+        self.costumeSelectionLayout = self.makeButtonLayout(costumeSheet,Obj.config["Costume"],setCostume)
 
+
+
+        ##언어 선택 기능
+        self.languageLabel = textObj("Language",size=20)
+        def setLanguage(sheet,option):
+            mainScene.cur_lang = sheet[option]
+            Obj.config["language"]=sheet[option]
+            Scenes.mainScene.initUI()
+
+        self.languageSelectionLayout = self.makeButtonLayout(languageSheet,mainScene.cur_lang,setLanguage)
+        for button in self.languageSelectionLayout.childs:
+            ##언어에 따라 버튼 폰트 변경
+            value = languageSheet[button.text]
             if value=='cn':
                 font = 'chinese_button.ttf'
             elif value=='jp':
                 font = 'japanese_button.ttf'
             else:
                 font = 'korean_button.ttf'
-
-            button = textButton(languageLabel,Obj.game_geometry['button']['button1'],font=font)
-            try:
-                Obj.config["language"]
-            except:
-                Obj.config["language"] = "en"
-
-            if value == Obj.config["language"]:
-                button.color = Cs.dark(button.color)
-                button.hoverMode = False
-            def f(m):
-                def _():
-                    mainScene.cur_lang = languageSheet[m]
-                    ##현재 언어 버튼 비활성화 처리
-                    for languageButton in self.languageSelectionLayout.childs:
-                        if languageButton.text == m:
-                            languageButton.color = Cs.dark(Cs.tiffanyBlue)
-                            languageButton.hoverMode = False
-                        else:
-                            languageButton.color = Cs.tiffanyBlue
-                            languageButton.hoverMode = True
-                    Obj.config["language"]=languageSheet[m]
-                    Scenes.mainScene.initUI()
-                return _
-            button.connect(f(languageLabel))
-            l3.append(button)
-        self.languageSelectionLayout = layoutObj(pygame.Rect(0,0,t//2,t//2),isVertical=False,childs=l3)
+            button.textObj.font = font
+            button.textObj.center = button.geometryCenter-button.geometryPos
 
 
-
+        ##왼쪽 설정 레이아웃 생성
         self.leftSettingLayout = layoutObj(pygame.Rect(t,t*2,0,0),isVertical=True,childs=[self.resolutionLabel,self.resolutionLayout,self.modeLabel,self.modeLayout,self.musicVolumeLabel,configScene.musicVolumeSlider,
                                                                                           self.SEVolumeLabel,self.SEVolumeSlider,
                                                                                           self.muslcSelectionLabel,self.musicSelectionLayout,self.costumeLabel,
                                                                                           self.costumeSelectionLayout,self.languageLabel,self.languageSelectionLayout],spacing=20)
         
         
+
+        ##체스 레이팅 설정 기능
+        self.ratingLabel = textObj("Chess Level",size=20)
+        def setRating(sheet,option):
+            Obj.config["rating"]=sheet[option]
+        try:
+            cur_rating = Obj.config["rating"]
+        except:
+            Obj.config["rating"] = ratingSheet["Intermediate"]
+            cur_rating = Obj.config["rating"]
+        self.ratingSelectionLayout = self.makeButtonLayout(ratingSheet,cur_rating,setRating)
+
+        self.rightSettingLayout = layoutObj(pygame.Rect(w-t*9,t*2,0,0),isVertical=True,childs=[self.ratingLabel,self.ratingSelectionLayout],spacing=20)
 
         return
     def init(self):
@@ -2422,6 +2425,7 @@ class configScene(Scene):
             Rs.setCurrentScene(Scenes.mainScene)
         configScene.configBackButton.update()
         self.leftSettingLayout.update()
+        self.rightSettingLayout.update()
         self.creditButton.update()
         return
     def draw(self):
@@ -2432,6 +2436,7 @@ class configScene(Scene):
         configScene.configBackButton.draw()
         self.creditButton.draw()
         self.leftSettingLayout.draw()
+        self.rightSettingLayout.draw()
         if self.showCredit:
             configScene.credit.draw()
         Obj.cursor.pos = Rs.mousePos()
