@@ -1822,6 +1822,10 @@ class mainScene(Scene):
         self.hintCounterObj.center = self.hintButton.geometryCenter+RPoint(-t//2,-t//3)
         self.updateHintCounter()
         self.configButton = textButton(UI_words["config"][mainScene.cur_lang],Obj.game_geometry['button']['button1'],color=Cs.hexColor("9DB6CC"))
+
+        self.configIcon = imageObj("setting_icon.png",pos=(30,30),scale=0.07) ## 설정 아이콘
+        self.configIcon.setParent(self.configButton)
+        self.configIcon.center = RPoint(30,23)
         
         self.configButton.connect(configScene.turnToConfig)
         
