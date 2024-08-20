@@ -813,8 +813,8 @@ default_screen_size = (1920,1080)
 window =Rs.new(REMOGame)
 
 class Obj():
-    stockfish_hint = Stockfish(path=stockFishPath,parameters={"Threads":4}) ## Stockfish로 힌트를 주는 AI
-    stockfish_play = Stockfish(path=stockFishPath,parameters={"Threads":4}) ## Stockfish로 게임을 하는 AI
+    stockfish_hint = Stockfish(path=stockFishPath,parameters={"Threads":2}) ## Stockfish로 힌트를 주는 AI
+    stockfish_play = Stockfish(path=stockFishPath,parameters={"Threads":2}) ## Stockfish로 게임을 하는 AI
     game_geometry = copy.deepcopy(game_geometry_n)
     board = chess.Board()
     thinkOfAI = ""
@@ -856,66 +856,19 @@ class Obj():
         except:
             Obj.config["rating"] = ratingSheet["Intermediate"]
             return Obj.config["rating"]
-    
-                
-        
-        
-    
 
-def updateGeoAndOpenGame():
-    r = Obj.config["Resolution"]/1920.0
-    fullScreen = modeSheet[Obj.config["FullScreen"]]
-    Obj.game_geometry = {}
-    for key in list(game_geometry_n):
-        Obj.game_geometry[key]={}
-        for attr in list(game_geometry_n[key]):
-            if type(game_geometry_n[key][attr])==tuple:
-                x,y = game_geometry_n[key][attr]            
-                Obj.game_geometry[key][attr]=(int(x*r),int(y*r))
-            elif type(game_geometry_n[key][attr])==RPoint:
-                Obj.game_geometry[key][attr]=game_geometry_n[key][attr]*r
-            elif type(game_geometry_n[key][attr])==pygame.Rect:
-                x,y,w,h = game_geometry_n[key][attr]
-                Obj.game_geometry[key][attr]=pygame.Rect(int(x*r),int(y*r),int(w*r),int(h*r))
-            elif type(game_geometry_n[key][attr])==int:
-                Obj.game_geometry[key][attr] = int(game_geometry_n[key][attr]*r)
-            else:
-                Obj.game_geometry[key][attr] = game_geometry_n[key][attr]*r
-    adder = int(5/r)
-    Obj.game_geometry['sys']['FontSize'] += adder
-    Obj.game_geometry['sys']['ButtonFontSize'] += adder//2
-    Obj.game_geometry['talk']['TextSize']+=adder
-    Rs.setSysFont(size=Obj.game_geometry['sys']['FontSize'],buttonFontSize=Obj.game_geometry['sys']['ButtonFontSize'])
-    w,h = default_screen_size
-
-    #pygame.display.quit()
-    if REMOGame.gameStarted():
-        REMOGame.exit()
- 
-    screen_size = (int(w*r),int(h*r))
-    ##윈도우가 화면 밖을 벗어나는 문제 해결
-    if sys.platform == 'win32':
-        # On Windows, the monitor scaling can be set to something besides normal 100%.
-        # PyScreeze and Pillow needs to account for this to make accurate screenshots.
-        # TODO - How does macOS and Linux handle monitor scaling?
-        import ctypes
-        try:
-            ctypes.windll.user32.SetProcessDPIAware()
-        except AttributeError:
-            pass # Windows XP doesn't support monitor scaling, so just do nothing.
-    window = REMOGame(screen_size,fullScreen,caption="Play Chess with Lady Bongcloud")
-
-    REMOGame.setCurrentScene(Scenes.mainScene)
-    window.run()
-    
+##힌트를 생성하는 프로세스    
 def stockFishHintProcess(fen,path,rating):
     stockfish = Obj.stockfish_hint
+    print("params",stockfish.get_parameters())
     stockfish.set_fen_position(fen)
     l = stockfish.get_top_moves(3)
     if len(l)>0:
         bestMove = l[0]
         makeAIHintData(bestMove["Move"],fen,path=Obj.hint)
-                
+
+
+##스톡피쉬를 이용한 AI 체스 프로세스
 def stockFishProcess(time,fen,path,bongcloudOpened,isBestMode,rating):
     color = fen.split(' ')[1]
     if color == 'b':
@@ -1244,7 +1197,7 @@ class mainScene(Scene):
             size += 5 ## 중국어는 한자가 작아서 크기를 더 키워준다.
         width = Obj.game_geometry['talk']['TextWidth']
         self.talkObj = longTextObj(sentence,geometry,size=size,textWidth=width,font=self.getFont())
-        self.talkBgObj = rectObj(Rs.padRect(self.talkObj.boundary,size),color=Cs.black)
+        self.talkBgObj = rectObj(self.talkObj.boundary.inflate(size*2,size*2),color=Cs.black)
         self.talkObj = longTextObj("",geometry,size=size,textWidth=width,font=self.getFont())
         self.talkObj.alpha=255
         self.talkBgObj.alpha = 0
@@ -1629,7 +1582,7 @@ class mainScene(Scene):
         self.makeBoard(True)
         #마지막에 움직인 체스 기물을 표시하기 위한 Obj (초록 불빛)
         self.lastMovedObj = imageObj('chess-greenLight.png',pos=(0,0))
-        self.lastMovedObj.rect = Rs.padRect(self.boardDisplay[0][0].rect,-5)
+        self.lastMovedObj.rect = self.boardDisplay[0][0].rect.inflate(-10,-10)
         self.lastMovedObj.center = self.boardDisplay[0][0].center
         self.lastMovedObj.alpha = 50
 
@@ -1981,7 +1934,7 @@ class mainScene(Scene):
                                     if self.posToChessPos(i,j) in promotion: ##TODO: 프로모션 처리
                                         self.promotionGUI = layoutObj(pos=curObj.geometryPos,spacing=0)
                                         t = Obj.game_geometry['board']['TileSize']
-                                        self.promotionBoard = rectObj(Rs.padRect(pygame.Rect(0,0,t,4*t),t//4))
+                                        self.promotionBoard = rectObj(pygame.Rect(0,0,t,4*t).inflate(t//2,t//2))
                                         self.promotionBoard.pos = curObj.geometryPos-RPoint(t//4,t//4)                                        
                                         self.promotionKey = self.posToChessPos(x,y)+self.posToChessPos(i,j)
                                         for code in promotion[self.posToChessPos(i,j)]:
@@ -2284,7 +2237,7 @@ class configScene(Scene):
                 
         t = Obj.game_geometry['board']['TileSize']
         w,h = Rs.screen.get_rect().size
-        self.blackBoard = rectObj(Rs.padRect(Rs.screen.get_rect(),-t//2),color=Cs.black,alpha=200)
+        self.blackBoard = rectObj(Rs.screen.get_rect().inflate(-t,-t),color=Cs.black,alpha=200)
         self.configLabel = textObj("Config",pos=(t*2,t),size=t//3)
         configScene.configBackButton = textButton("Go Back",pygame.Rect(w-4*t,h-2*t,t*2,t),color=Cs.grey,fontColor=Cs.black)
         def configBack():
@@ -2508,7 +2461,6 @@ if __name__=="__main__":
     window.setCurrentScene(Scenes.mainScene)
     window.run()
 
-    #updateGeoAndOpenGame() # 게임을 이렇게 시작해도 문제 없음
     '''
     window = REMOGame((1920,1080),True,caption="Bishoujo Chess")
     REMOGame.setCurrentScene(Scenes.mainScene)

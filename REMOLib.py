@@ -1,19 +1,14 @@
 ###REMO Engine 
 #Pygames 모듈을 리패키징하는 REMO Library 모듈
 #2D Assets Game을 위한 생산성 높은 게임 엔진을 목표로 한다.
-##version 0.2.2 (24-08-14 Update)
+##version 0.2.3 (24-08-20 13:37 Update)
 #업데이트 내용
-#스크린샷 버그 개선(깨진 스크린샷 버그)
-#longTextObj 관련 버그 픽스(layoutObj 고침)
-#textButton setParent 함수 개선
-#sliderObj 개선
-#REMODatabase (File I/O) 클래스
-#topleft,topright 등 다양한 포지션 편집 기능
-#fullScreen 관련 버그 픽스
-#REMOScript에 감정표현(emotion) 기능 추가, 13개의 감정 지원
-#Script Renderer에 스크립트 재생 종료를 의미하는 마커 추가
-#스크립트에서 jump, move,sound 재생 지원
-#scrollLayout 제작(70%, 아직 불명의 버그와 버벅임 등이 있음)
+#playVoice 함수 추가
+#소소한 디버깅과 주석 수정(08-15 21:01)
+#dialogObj의 추가 및 기타 엔진 개선(08-16 00:00)
+#copyImage 함수 추가(08-17 10:25)
+#Rs.padRect 함수 제거(pygame.Rect.inflate 함수를 사용하면 됨) (08-20 13:37)
+#근본적인 버그를 발생시키는 불쾌한 Threading 관련 함수 제거 (08-20 13:59)
 ###
 
 
@@ -39,6 +34,11 @@ from enum import Enum
 ## includes all of the method of QPoint + additional methods
 ## 2-Dimensional (x,y) Point
 class RPoint():
+    '''
+    2차원 좌표를 나타내는 클래스\n
+    x,y : 좌표값\n
+    toTuple() : 튜플로 변환\n
+    '''
     def __init__(self,x=(0,0),y=None):
         if y==None:
             self.__x=int(x[0])
@@ -106,6 +106,10 @@ class RPoint():
 
 #colorSheet
 class Cs():
+    '''
+    Colors의 약자. 색상을 나타내는 클래스\n
+    각종 색상의 RGB값 혹은 hexColor를 rgb 튜플로 만들어준다.\n
+    '''
     white=(255, 255, 255)
     grey=(128,128,128)
     black=(0,0,0)
@@ -170,6 +174,9 @@ class Rs:
     __window_resolution = (800,600) # 게임 윈도우 해상도
 
     def getWindowRes():
+        '''
+        윈도우 해상도를 반환한다.\n
+        '''
         if Rs.isFullScreen():
             return Rs.fullScreenRes
         else:
@@ -177,6 +184,11 @@ class Rs:
 
     #윈도우 해상도를 변화시킨다.    
     def setWindowRes(res:tuple):
+        '''
+        윈도우 해상도를 설정한다.\n
+        res : (가로,세로) 튜플\n
+        주 모니터의 최대 해상도보다 클 경우 강제로 조정된다.
+        '''
         ##주 모니터의 최대 해상도보다 클 경우 강제 조정
         ##Test
         max_res = Rs.fullScreenRes
@@ -217,6 +229,7 @@ class Rs:
         state = pygame.mouse.get_pressed()
         for i,_ in enumerate(state):
             if i==0 and (Rs.__lastState[i],state[i])==(True,False): # Drag 해제.
+                ##드래그 해제 이벤트 처리
                 Rs.draggedObj=None
                 Rs.dropFunc()
             #버튼 클릭 여부를 확인.
@@ -230,6 +243,17 @@ class Rs:
                 Rs.__justReleased[i]=True
             else:
                 Rs.__justReleased[i]=False
+
+
+        ##등록된 팝업들 업데이트
+        for popup in Rs.__popupPipeline:
+            Rs.__popupPipeline[popup].update()
+        
+        ##팝업 제거
+        for rpopup in Rs.__removePopupList:
+            del Rs.__popupPipeline[rpopup]
+        Rs.__removePopupList.clear()
+        
                 
         ##animation 처리
         for animation in Rs.__animationPipeline:
@@ -263,6 +287,10 @@ class Rs:
     def _draw(cls):
         ##배경화면을 검게 채운다.
         Rs.window.fill(Cs.black)
+        ##등록된 팝업들을 그린다.
+        for popup in Rs.__popupPipeline:
+            Rs.__popupPipeline[popup].draw()
+
         ##등록된 애니메이션들을 재생한다.
         for animation in Rs.__animationPipeline:
             animation["obj"].draw()
@@ -302,14 +330,30 @@ class Rs:
     @classmethod
     #Return copied graphics object
     def copy(cls,obj):
+        '''
+        그래픽 객체를 복사. (graphicObj)
+        '''
         new_obj = graphicObj()
         new_obj.pos = obj.geometryPos
         new_obj.graphic = copy.copy(obj.graphic)
         new_obj.graphic_n = copy.copy(obj.graphic_n)
         return new_obj
 
+    @classmethod
+    def copyImage(cls,obj):
+        '''
+        이미지 객체를 복사. (imageObj)
+        '''
+        new_obj = imageObj()
+        new_obj.pos = obj.geometryPos
+        new_obj.graphic = copy.copy(obj.graphic)
+        new_obj.graphic_n = copy.copy(obj.graphic_n)
+        new_obj.scale = obj.scale
+        new_obj.angle = obj.angle
+        return new_obj
+
     #__init__을 호출하지 않고 해당 객체를 생성한다.
-    #인텔리센스 사용을 위해 쓰는 신택스 슈가 함수.
+    #vscode 인텔리센스 사용을 위해 쓰는 신택스 슈가 함수.
     @classmethod
     def new(cls,obj):
         return obj.__new__(obj)
@@ -331,10 +375,13 @@ class Rs:
     __soundPipeline={}
     __masterSEVolume = 1
     __masterVolume = 1
-    #사운드 재생. wav와 ogg파일을 지원한다. 중복재생이 가능하다.
-    #loops=-1 인자를 넣을 경우 무한 반복재생.
+    __curVoice = None ##현재 재생된 음성파일을 저장한다.
     @classmethod
     def playSound(cls,fileName,*,loops=0,maxtime=0,fade_ms=0,volume=1):
+        '''
+        사운드 재생. wav와 ogg파일을 지원한다. 중복재생이 가능하다. \n
+        loops=-1 인자를 넣을 경우 무한 반복재생.   
+        '''
         fileName = Rs.getPath(fileName)
         if fileName not in list(Rs.__soundPipeline):
             Rs.__soundPipeline[fileName] = pygame.mixer.Sound(fileName)         
@@ -349,15 +396,26 @@ class Rs:
             return
         mixer = Rs.__soundPipeline[fileName]
         mixer.stop()        
+    @classmethod
+    def playVoice(cls,fileName,*,volume=1):
+        '''
+        음성 재생. wav와 ogg파일을 지원한다. 효과음(특히 음성)이 중복재생 되는 것을 막아준다. \n
+        '''
+        if Rs.__curVoice!=None:
+            Rs.__curVoice.stop()
+        Rs.__curVoice = Rs.playSound(fileName,volume=volume) 
 
     __currentMusic = None
     __musicVolumePipeline = {}
     __changeMusic = None
-    #음악 재생. mp3, wav, ogg파일을 지원한다. 중복 스트리밍은 불가능.
-    #loops=-1 인자를 넣을 경우 무한 반복재생. 0을 넣을 경우 반복 안됨
     #여기서의 volume값은 마스터값이 아니라 음원 자체의 볼륨을 조절하기 위한 것이다. 음원이 너무 시끄럽거나 할 때 값을 낮춰잡는 용도
     @classmethod
-    def playMusic(cls,fileName,*,loops=-1,start=0.0,volume=1):
+    def playMusic(cls,fileName,*,loops=-1,start=0.0,volume=1.0):
+        '''
+        음악 재생. mp3, wav, ogg파일을 지원한다. 중복 스트리밍은 불가능. \n
+        loops=-1 인자를 넣을 경우 무한 반복재생. 0을 넣을 경우 반복 안됨
+        볼륨은 0~1 사이의 float값으로, 음원의 자체 볼륨이 너무 크거나 작거나 할 때 조정할 수 있다.
+        '''
         pygame.mixer.music.load(Rs.getPath(fileName))
         pygame.mixer.music.set_volume(volume*Rs.__masterVolume)
         pygame.mixer.music.play(loops,start)
@@ -437,19 +495,8 @@ class Rs:
 
     #Fill Rectangle with color
     @classmethod
-    def fillRect(cls,color,rect,*,pad=0,special_flags=0):
-        Rs.screen.fill(color,Rs.padRect(rect,pad),special_flags)
-
-    #가장자리를 pad만큼 늘린 사각형 리턴
-    #Pad 음수일 경우 줄인다.
-    #Pad는 숫자일 수도 있고 (3,5)와 같은 튜플일수도 있다.
-    @classmethod
-    def padRect(cls,rect,pad):
-        if type(pad)==int:
-            return pygame.Rect(rect[0]-pad,rect[1]-pad,rect[2]+2*pad,rect[3]+2*pad)
-        else:
-            #pad[0]->pad_width, pad[1]->pad_height
-            return pygame.Rect(rect[0]-pad[0],rect[1]-pad[1],rect[2]+2*pad[0],rect[3]+2*pad[1])          
+    def fillRect(cls,color,rect,*,special_flags=0):
+        Rs.screen.fill(color,rect,special_flags)
 
     #폰트 파이프라인(Font Pipeline)
     __fontPipeline ={}
@@ -643,7 +690,14 @@ class Rs:
     @classmethod
     def fadeAnimation(cls,obj,*,time=30,alpha=255):
         Rs.__fadeAnimationPipeline.append({"Obj":obj,"Max":time,"Time":time,"Alpha":alpha})
-        
+    
+    @classmethod
+    def clearAnimation(cls):
+        '''
+        재생중인 애니메이션을 모두 지운다.
+        '''
+        Rs.__animationPipeline.clear()
+        Rs.__fadeAnimationPipeline.clear()        
     ##스크린샷 - 현재 스크린을 캡쳐하여 저장한다.
     screenShot = None
     #스크린샷 캡쳐
@@ -713,9 +767,10 @@ class Rs:
         '''
         Drag & Drop Event Handler \n
         triggerObj : 드래그가 촉발되는 객체 \n
-        draggedObj : 드래그되는 객체 \n
+        draggedObj : 드래그되는 객체. 설정하지 않을 경우 triggerObj와 같다. \n
         draggingFunc : 드래깅 중 실행되는 함수 \n
-        dropFunc : 드래그가 끝날 때 실행되는 함수
+        dropFunc : 드래그가 끝날 때 실행되는 함수 \n
+        Scene의 update 함수 안에 넣어야 동작합니다.
         '''
         if draggedObj==None:
             draggedObj = triggerObj
@@ -775,6 +830,9 @@ class Rs:
     ##현재 신을 교체해준다.
     @classmethod
     def setCurrentScene(cls,scene,skipInit=False):
+        '''
+        현재 Scene을 교체한다.\n
+        '''
         REMOGame.drawLock = True
         REMOGame.setCurrentScene(scene,skipInit)
         REMOGame.drawLock = False
@@ -788,10 +846,18 @@ class Rs:
     ##드로우 쓰레드에 락을 걸어야 할 때 사용하는 함수
     @classmethod
     def acquireDrawLock(cls):
+        '''
+        드로우 락을 걸어서, 드로우 쓰레드가 드로우를 하지 못하게 한다.
+        Scene의 update 함수 안에서만 사용할것. 안 그러면 데드락이 걸릴 수 있다.
+        '''
         REMOGame.drawLock = True 
     ##락 해제
     @classmethod
     def releaseDrawLock(cls):
+        '''
+        드로우 락을 해제한다.
+        Scene의 update 함수 안에서만 사용할것. 안 그러면 데드락이 걸릴 수 있다.
+        '''
         REMOGame.drawLock = False
         
         
@@ -811,6 +877,40 @@ class Rs:
                 return k
         return list(data)[-1]
 
+
+    ##팝업 관련 함수
+    ##팝업은, 화면 맨 위쪽에 띄워지는 오브젝트들을 의미한다.
+    ##DialogObj 등을 여기에 등록하면 좋다.
+    __popupPipeline = {}
+    __removePopupList = []
+    @classmethod
+    def addPopup(cls,popup):
+        Rs.__popupPipeline[id(popup)] = popup
+    @classmethod
+    def removePopup(cls,popup):
+        Rs.__removePopupList.append(id(popup))
+
+    @classmethod
+    def isPopup(cls,popup):
+        '''
+        해당 오브젝트가 팝업되어 있는지를 체크하는 함수
+        '''
+        return id(popup) in Rs.__popupPipeline
+    @classmethod
+    def mouseCollidePopup(cls):
+        '''
+        팝업 중 마우스와 충돌하는 팝업이 있는지를 체크하는 함수
+        '''
+        for popup in Rs.__popupPipeline:
+            if Rs.__popupPipeline[popup].collideMouse():
+                return True
+        return False
+    @classmethod
+    def popupExists(self):
+        '''
+        현재 팝업이 존재하는지를 체크하는 함수
+        '''
+        return len(Rs.__popupPipeline)>0
 
 
 Rs._buildPath() ## 경로 파이프라인을 구성한다.
@@ -844,39 +944,9 @@ class Scene(ABC):
 
 
 
-#target_fps에 맞게 그리기 함수를 호출하는 스레드
-
-class drawThread():
-
-    def __init__(self):
-        super().__init__()
-    def run(self):
-        prev_time = time.time()
-        benchmarkTimer = time.time()
-        while REMOGame._lastStartedWindow.running:
-            if not REMOGame.drawLock:
-                try:
-                    REMOGame._lastStartedWindow.draw()
-                    REMOGame._lastStartedWindow.paint()
-                except Exception as err:
-                    import traceback
-                    traceback.print_exc()
-                    continue
-                ##Timing code, set frame to target_fps(60fps)
-                curr_time = time.time()#so now we have time after processing
-                diff = curr_time - prev_time#frame took this much time to process and render
-                delay = max(1.0/Rs.draw_fps - diff, 0)#if we finished early, wait the remaining time to desired fps, else wait 0 ms!
-                time.sleep(delay)
-                if time.time()-benchmarkTimer>0.5:
-                    ##현재 나오는 프레임(fps)을 벤치마크한다.
-                    REMOGame.benchmark_fps["Draw"] = 1.0/(delay + diff)#fps is based on total time ("processing" diff time + "wasted" delay time)
-                    benchmarkTimer = time.time()
-                prev_time = curr_time
-
 ## Base Game class
 class REMOGame:
     currentScene = Scene()
-    __drawThread = drawThread()
     benchmark_fps = {"Draw":0,"Update":0}
     drawLock = False ## 신 교체 중임을 알리는 인자
     __showBenchmark = False
@@ -947,15 +1017,11 @@ class REMOGame:
     @classmethod
     def exit(cls):
         REMOGame._lastStartedWindow.running = False
-        REMOGame.__drawThread.join()
         #pygame.quit()
 
     #Game Running Method
     def run(self):
         self.running = True
-        import threading
-        REMOGame.__drawThread = threading.Thread(target=drawThread().run)
-        REMOGame.__drawThread.start()
 
         prev_time = time.time()
         benchmarkTimer = time.time()
@@ -968,6 +1034,7 @@ class REMOGame:
                     if event.type == pygame.QUIT:
                         REMOGame.exit()
                 self.update()
+                self.draw()
 
                 Rs._updateState()
 
@@ -1024,6 +1091,21 @@ class graphicObj():
         setattr(_rect,attr,_point)
         self.pos = RPoint(_rect.topleft)
 
+
+    @property
+    def x(self):
+        return RPoint(self.rect.x)
+    @x.setter
+    def x(self,_x):
+        self.__adjustPosBy("x",_x)
+
+
+    @property
+    def y(self):
+        return RPoint(self.rect.y)
+    @y.setter
+    def y(self,_y):
+        self.__adjustPosBy("y",_y)
 
     @property
     def center(self):
@@ -1109,6 +1191,14 @@ class graphicObj():
         self.graphic = pygame.transform.smoothscale(self.graphic_n,(rect[2],rect[3]))
         self._pos = RPoint(rect[0],rect[1])
         self._clearGraphicCache()
+
+    @property
+    def offset_rect(self):
+        ''' 
+        pos를 (0,0)으로 처리한 rect를 반환합니다.
+        '''
+        return pygame.Rect(0,0,self.graphic.get_rect().w,self.graphic.get_rect().h)
+
 
     #geometry란 object가 실제로 screen상에서 차지하는 영역을 의미합니다.
     #getter only입니다.
@@ -1322,16 +1412,19 @@ class rectObj(graphicObj):
         pygame.draw.rect(self.graphic_n,color,pygame.Rect(2*edge,2*edge,rect.w-4*edge,rect.h-4*edge),border_radius=radius)
         self.graphic = self.graphic_n.copy()
         
-    def __init__(self,rect,*,radius=None,pad=0,edge=0,color=Cs.white,alpha=255):
+    def __init__(self,rect,*,radius=None,edge=0,color=Cs.white,alpha=255):
+        '''
+        radius: 사각형의 모서리의 둥근 정도
+        edge: 테두리의 두께
+        '''
+                
         super().__init__()
         if radius==None:
             radius = int(min(rect.w,rect.h)*0.2)
 
-        temp = Rs.padRect(rect,pad)
-        self._makeRect(temp,color,edge,radius)
-        #self.graphic.set_colorkey((0,0,0))
+        self._makeRect(rect,color,edge,radius)
+        self.pos = Rs.Point(rect.topleft)
         self.alpha=alpha
-        self.pos = RPoint(rect.x,rect.y)-RPoint(pad,pad)
         self._color = color
         self._radius = radius
         self._edge = edge
@@ -1363,6 +1456,10 @@ class rectObj(graphicObj):
 
 class textObj(graphicObj):
     def __init__(self,text="",pos=(0,0),*,font=None,size=None,color=Cs.white,angle=0):
+        '''
+        size: 폰트 사이즈
+        angle: 폰트 회전 각도(int,시계방향)
+        '''
         super().__init__()
         if font==None:
             font = Rs.getSysFont()[0]
@@ -1620,6 +1717,13 @@ class longTextObj(layoutObj):
         return result
 
     def __init__(self,text="",pos=RPoint(0,0),*,font=None,size=None,color=Cs.white,textWidth=100,alpha=255):
+        '''
+        font : 폰트 이름(.ttf로 끝나는 string)
+        size : 폰트 사이즈
+        color : 폰트 색상
+        textWidth : 한 줄의 텍스트 길이
+        alpha : 투명도
+        '''
         if font==None:
             font = Rs.getSysFont()[0]
         if size==None:
@@ -1864,6 +1968,13 @@ class textButton(rectObj):
     
     ##ralpha = 버튼을 포함한 직사각형의 alpha값
     def __init__(self,text="",rect=pygame.Rect(0,0,0,0),*,edge=1,font="korean_button.ttf",size=None,color=Cs.tiffanyBlue,func=lambda:None,hoverMode=True,fontColor=Cs.white,alpha=225,ralpha=255):
+        '''
+        edge : 버튼의 테두리 두께
+        font : 버튼에 사용될 폰트
+        size : 폰트 사이즈
+        color : 버튼의 색상
+        func : 버튼을 눌렀을 때 실행될 함수
+        '''
         if size==None:
             size = Rs._buttonFontSize
         self.textObj = textObj(text,RPoint(0,0),font=font,size=size,color=fontColor)
@@ -1880,7 +1991,7 @@ class textButton(rectObj):
 
         self.shadow1 = rectObj(rect,color=Cs.black)
         self.shadow1.alpha = 30
-        self.shadow.rect = Rs.padRect(self.rect,10)
+        self.shadow.rect = self.rect.inflate(10,10)
         self.func = func #clicked function
         self.alpha = alpha
         self.textObj.setParent(self)
@@ -1900,7 +2011,6 @@ class textButton(rectObj):
     @text.setter
     def text(self,text):
         self.textObj.text = text
-        self.textObj.center = self.geometryCenter-self.geometryPos
         self.update()
         
     @property
@@ -1949,6 +2059,9 @@ class textButton(rectObj):
 
     #버튼을 누르면 실행될 함수를 등록한다.
     def connect(self,func):
+        '''
+        버튼을 눌렀을 때 실행될 함수를 등록한다.
+        '''
         self.func = func
     
     def setParent(self,parent):
@@ -1958,8 +2071,21 @@ class textButton(rectObj):
 
 ##실제로 대사를 한 글자씩 출력하기 위한 오브젝트.        
 ##npc의 대사 출력 등에 활용하면 좋다.
-class scriptObj(longTextObj):
+class textBubbleObj(longTextObj):
     def __init__(self,text="",pos=RPoint(0,0),*,font=None,size=None,color=Cs.white,textWidth=100,alpha=255, bgExist=True, bgColor = Cs.black, liveTimer=None,speed=2):
+        '''
+        NPC 대사 출력 등에 활용할 수 있는 말풍선 오브젝트. \n
+        text : 대사 내용 \n
+        pos : 대사 위치 \n
+        font : 폰트 \n
+        size : 폰트 사이즈 \n
+        color : 폰트 색상 \n
+        textWidth : 한 줄의 텍스트 길이 \n
+        alpha : 투명도 \n
+        bgExist : 말풍선 배경이 존재하는지 여부 \n
+        bgColor : 말풍선 배경 색상 \n
+        liveTimer : 말풍선 효과를 낼 경우, 해당 오브젝트가 살아있는 시간을 의미
+        '''
         super().__init__(text,pos=pos,font=font,size=size,color=color,textWidth=textWidth,alpha=alpha)
         self.fullBoundary = copy.copy(self.boundary) ## 텍스트가 전부 출력되었을 경우의 경계를 저장.
         self.fullSentence = self.text #전체 텍스트를 저장.
@@ -1968,7 +2094,7 @@ class scriptObj(longTextObj):
         self.liveTimer = liveTimer ## 말풍선 효과를 낼 경우, 해당 오브젝트가 살아있는 시간을 의미
         
         if bgExist:
-            self.bg = textButton("",Rs.padRect(self.fullBoundary,20),color=bgColor,hoverMode=False)
+            self.bg = textButton("",self.fullBoundary.inflate(20,20),color=bgColor,hoverMode=False)
         else:
             self.bg = None
 
@@ -2029,6 +2155,10 @@ class REMODatabase:
     ##피클로 파이썬 객체를 저장한다. 보통 딕셔너리나 리스트 계열을 저장할때 사용
     @classmethod
     def saveData(cls,path,data):
+        '''
+        path : 저장할 파일의 경로\n
+        data : 저장할 파이썬 객체(딕셔너리, 리스트 등)
+        '''
         if os.path.isfile(path):
             control = 'wb'
         else:
@@ -2038,6 +2168,10 @@ class REMODatabase:
     ##저장된 파이썬 객체를 불러온다.
     @classmethod
     def loadData(cls,path):
+        '''
+        path : 불러올 파일의 경로\n
+        path에 저장된 파이썬 객체를 불러온다.
+        '''
         return pickle.load(open(path,'rb'))
     
 
@@ -2056,6 +2190,12 @@ class REMODatabase:
     ## prefix를 통해서 지정된 .scr 파일만 묶어서 저장할 수 있다. ex)GAME1_script1.scr GAME1_script2.scr
     ##        
     def zipScript(outputName,inputs=None,prefix=""):
+        '''
+        outputName : 저장할 .scrs 파일의 이름\n
+        inputs : 묶을 .scr 파일의 이름 리스트(전체 파일들을 묶을 경우 None)\n
+        prefix : 묶을 .scr 파일의 이름 중 특정 접두사를 가진 파일만 묶을 수 있음\n
+        경로 내의 .scr 파일을 묶어서 .scrs 파일로 만든다.
+        '''
         zipped = {}
         if inputs==None:
             current_directory = os.getcwd()
@@ -2076,6 +2216,9 @@ class REMODatabase:
 
     ##.scr 파일을 불러와 파이프라인에 저장한다.
     def loadScript(fileName):
+        '''
+        fileName : 불러올 .scr 파일의 이름\n
+        '''
         if not fileName.endswith('.scr'):
             fileName += '.scr'
         file = open(fileName,'r',encoding='UTF-8')
@@ -2085,6 +2228,9 @@ class REMODatabase:
 
     ##.scrs 파일을 불러와 파이프라인에 저장한다.
     def loadScripts(fileName):
+        '''
+        fileName : 불러올 .scrs 파일의 이름\n
+        '''
         if not fileName.endswith('.scrs'):
             fileName += '.scrs'
         path = Rs.getPath(fileName)
@@ -2148,6 +2294,8 @@ class scriptRenderer():
         ##스크립트 텍스트 오브젝트
         self.scriptObj = longTextObj("",pos=self.layout["script-pos"],font=self.font,size=self.layout["font-size"],textWidth=self.layout["script-text-width"])
 
+    def clear(self):
+        self._init()
 
 
     #textSpeed:값이 클수록 느리게 재생된다.
@@ -2245,7 +2393,6 @@ class scriptRenderer():
 
     def updateScript(self):
 
-        Rs.acquireDrawLock()
 
         
         ### '#'태그 처리
@@ -2423,12 +2570,14 @@ class scriptRenderer():
             self.currentScript = self.currentLine.strip()
         self.scriptObj.text=""
 
-        Rs.releaseDrawLock()
 
 
 
         
     def update(self):
+        '''
+        함수가 복잡하므로 이 함수 실행 전에 Rs.acquireDrawLock()을 통해 락을 걸어주는 것이 좋다.
+        '''
 
         ##캐릭터의 움직임 업데이트
         for i,moveInst in enumerate(self.moveInstructions):
@@ -2671,9 +2820,9 @@ class scrollLayout(layoutObj):
         
         self.scrollBar.pos = self.getScrollbarPos()+self.geometryPos
 
-    def __init__(self,rect=pygame.Rect(0,0,0,0),*,pos=None,spacing=10,childs=[],isVertical=True,scrollColor = Cs.white):
+    def __init__(self,rect=pygame.Rect(0,0,0,0),*,spacing=10,childs=[],isVertical=True,scrollColor = Cs.white):
 
-        super().__init__(rect=rect,pos=pos,spacing=spacing,childs=childs,isVertical=isVertical)
+        super().__init__(rect=rect,spacing=spacing,childs=childs,isVertical=isVertical)
         if isVertical:
             s_length = self.rect.h
         else:
@@ -2708,9 +2857,6 @@ class scrollLayout(layoutObj):
     def update(self):
         viewport = pygame.Rect(0,0,self.rect.w,self.rect.h)
 
-        if Rs.userJustLeftClicked() and self.collideMouse():
-            print("DEBUG")
-
         ##마우스 클릭에 대한 업데이트
         for child in self.childs:
             # child가 update function이 있을 경우 실행한다.
@@ -2728,5 +2874,65 @@ class scrollLayout(layoutObj):
 
 
 
+##다이얼로그 창을 나타내는 오브젝트
+##버튼이 달려있는 팝업창이다.
+class dialogObj(rectObj):
+    def __init__(self,rect,title="",content="",buttons=[],*,radius=10,edge=1,color=Cs.black,alpha=255,
+                 font="korean_button.ttf",title_size=40,content_size=30,fontColor=Cs.white,
+                 spacing=20,buttonSize=(200,50)):
+        '''
+        dialogObj는 다이얼로그 창을 나타내는 오브젝트입니다.\n
+        color: 팝업창의 색깔입니다.\n
+        title_size: 제목의 폰트 크기입니다.\n
+        content_size: 내용의 폰트 크기입니다.\n
+        spacing : 제목과 내용 사이의 간격입니다.\n
+        title은 비울 수 있습니다.\n
+        '''
+        super().__init__(rect,color=color,alpha=alpha,radius=radius,edge=edge)
+        #TODO: title, content, buttons 선언
+
+        if title!="":
+            self.title = textObj(title,pos=(spacing,spacing),size=title_size,font=font,color=fontColor)
+            self.content = longTextObj(content,pos=(spacing,spacing*2+self.title.rect.height),size=content_size,font=font,color=fontColor,textWidth=rect.w-2*spacing)
+            self.title.setParent(self)
+            self.title.centerx = rect.w//2
+        else:
+            self.title=None
+            self.content = longTextObj(content,pos=(spacing,spacing*2),size=content_size,font=font,color=fontColor,textWidth=rect.w-2*spacing)
+
+        self.buttons = buttonLayout(buttons,pos=RPoint(0,0),fontSize=30,buttonSize=buttonSize,spacing=10,fontColor=fontColor,buttonColor=Cs.light(color),isVertical=False)
+        self.content.centerx = rect.w//2
+        self.buttons.midbottom = (rect.w//2,rect.h-spacing)
+
+        self.content.setParent(self)
+        self.buttons.setParent(self)
+
+        self.buttons.update()
+
+    def update(self):
+        self.buttons.update()
+        return
+
+    def __getitem__(self,key):
+        return self.buttons[key]
+    def __setitem__(self, key, value):
+        self.buttons[key]=value
+
+    def show(self):
+        '''
+        다이얼로그 창을 화면에 띄웁니다.
+        '''
+        Rs.addPopup(self)
+    def hide(self):
+        '''
+        다이얼로그 창을 화면에서 숨깁니다.
+        '''
+        Rs.removePopup(self)
+
+    def isShown(self):
+        '''
+        다이얼로그 창이 화면에 띄워져 있는지 확인합니다.
+        '''
+        return Rs.isPopup(self)
 
                 
