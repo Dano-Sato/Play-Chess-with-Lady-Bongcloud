@@ -813,8 +813,8 @@ default_screen_size = (1920,1080)
 window =Rs.new(REMOGame)
 
 class Obj():
-    stockfish_hint = Stockfish(path=stockFishPath,parameters={"Threads":2}) ## Stockfish로 힌트를 주는 AI
-    stockfish_play = Stockfish(path=stockFishPath,parameters={"Threads":2}) ## Stockfish로 게임을 하는 AI
+    stockfish_hint = Stockfish(path=stockFishPath,parameters={"Threads":4}) ## Stockfish로 힌트를 주는 AI
+    stockfish_play = Stockfish(path=stockFishPath,parameters={"Threads":4}) ## Stockfish로 게임을 하는 AI
     game_geometry = copy.deepcopy(game_geometry_n)
     board = chess.Board()
     thinkOfAI = ""
@@ -1479,7 +1479,7 @@ class mainScene(Scene):
                                     self.showSmile=True
                         
                     Rs.playSound('move-chess.wav',volume=0.3)
-                    self.ladyHandTimer=30
+                    self.ladyHandTimer=20
                     makeAIData("")
                     self.proc = None
                 else:
@@ -1951,7 +1951,7 @@ class mainScene(Scene):
                                             self.ladySays(random.choice(self.getTalkScript()['thinking']))
                                             self.playVoice('talk-thinking1.wav',0.5)
 
-                                        self.aiWait=random.randint(50,150)
+                                        self.aiWait=random.randint(20,60)
                                     
                                         
                                         

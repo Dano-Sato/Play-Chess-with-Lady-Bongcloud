@@ -949,6 +949,7 @@ class REMOGame:
     currentScene = Scene()
     benchmark_fps = {"Draw":0,"Update":0}
     drawLock = False ## 신 교체 중임을 알리는 인자
+    clock = pygame.time.Clock()
     __showBenchmark = False
     _lastStartedWindow = None
     def __init__(self,window_resolution=(1920,1080),screen_size = (1920,1080),fullscreen=True,*,caption="REMOGame window"):
@@ -1038,18 +1039,7 @@ class REMOGame:
 
                 Rs._updateState()
 
-
-                ##Timing code, set frame to target_fps(60fps)
-                curr_time = time.time()#so now we have time after processing
-                diff = curr_time - prev_time#frame took this much time to process and render
-                delay = max(1.0/Rs.update_fps - diff, 0)#if we finished early, wait the remaining time to desired fps, else wait 0 ms!
-                time.sleep(delay)
-                if time.time()-benchmarkTimer>0.5:
-                    ##현재 나오는 프레임(fps)을 벤치마크한다.
-                    REMOGame.benchmark_fps["Update"] = 1.0/(delay + diff)#fps is based on total time ("processing" diff time + "wasted" delay time)
-                    benchmarkTimer = time.time()
-
-                prev_time = curr_time
+                REMOGame.clock.tick(60)
             except:
                 import traceback
                 traceback.print_exc()
