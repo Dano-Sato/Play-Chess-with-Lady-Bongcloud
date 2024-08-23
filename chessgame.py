@@ -1222,7 +1222,7 @@ class mainScene(Scene):
             coordinateX=coordinateX[::-1]
         temp = []
         for c in coordinateX:
-            obj = textButton(c,pygame.Rect(0,0,Obj.game_geometry['board']['TileSize'],Obj.game_geometry['board']['TileSize']//2),hoverMode=False,color=Cs.black,alpha=255)
+            obj = textButton(c,pygame.Rect(0,0,Obj.game_geometry['board']['TileSize'],Obj.game_geometry['board']['TileSize']//2),enabled=False,color=Cs.black,alpha=255)
             temp.append(obj)
         pos = self.boardDisplay.pos+RPoint(0,Obj.game_geometry['board']['TileSize']*8)
         self.coordinateXObj = layoutObj(pos=pos,spacing=0,isVertical=False,childs=temp)
@@ -1232,7 +1232,7 @@ class mainScene(Scene):
             coordinateY=coordinateY[::-1]
         temp = []
         for c in coordinateY:
-            obj = textButton(c,pygame.Rect(0,0,Obj.game_geometry['board']['TileSize']//2,Obj.game_geometry['board']['TileSize']),hoverMode=False,color=Cs.black,alpha=255)
+            obj = textButton(c,pygame.Rect(0,0,Obj.game_geometry['board']['TileSize']//2,Obj.game_geometry['board']['TileSize']),enabled=False,color=Cs.black,alpha=255)
             temp.append(obj)
         pos = self.boardDisplay.pos+RPoint(-50,0)
         self.coordinateYObj = layoutObj(pos=pos,spacing=0,childs=temp)
@@ -1270,7 +1270,7 @@ class mainScene(Scene):
                 c = [Cs.white,Cs.black]
             else:
                 c = [Cs.black,Cs.white]
-            self.turnButton = textButton(turnText+t,Obj.game_geometry['button']['button2'],color=c[0],fontColor=c[1],hoverMode=False,font=self.getFont())    
+            self.turnButton = textButton(turnText+t,Obj.game_geometry['button']['button2'],color=c[0],fontColor=c[1],enabled=False,font=self.getFont())    
             self.turnButton.center = self.boardDisplay[4][4].geometryPos + 5*RPoint(0,Obj.game_geometry['board']['TileSize'])
             self.turnButton.update()
 
@@ -1347,7 +1347,7 @@ class mainScene(Scene):
         if not self.isUserTurn():
             self.lastMovedObj.pos = delta
             self.boardDisplay[j][i].chessObj.pos=delta
-        self.boardDisplay[j][i].childs = self.boardDisplay[j][i].childs[::-1]
+        self.boardDisplay[j][i].childs[0] = self.boardDisplay[j][i].childs[0][::-1]
 
         return [i,j]
 
@@ -1651,7 +1651,7 @@ class mainScene(Scene):
         self.rematchBlackButton.connect(rematch(False))
         self.rematchWhiteButton.connect(rematch(True))
         self.rematchButtonLayout = layoutObj(pos=Obj.game_geometry['button']['pos1'],childs=[self.rematchBlackButton,self.rematchWhiteButton],isVertical=False)
-        for button in self.rematchButtonLayout.childs:
+        for button in self.rematchButtonLayout.getChilds():
             button.alpha =0
             
         self.hintButton = textButton(UI_words["hint"][mainScene.cur_lang],Obj.game_geometry['button']['button1'],color=Cs.hexColor("FB8DA0"))
@@ -1737,6 +1737,8 @@ class mainScene(Scene):
 
         self.conversationButton = imageButton("speech_icon.png",Obj.game_geometry['button']['talkButton'])
         self.conversationButton.alpha = 200
+        self.conversationButton.hoverObj.size = self.conversationButton.size
+        self.conversationButton.shadow.size = self.conversationButton.size
         self.lastTalkedIndex = -1 # 마지막으로 말한 대사의 인덱스
         def conversation():
             if self.talkTimer==0:
@@ -1766,7 +1768,7 @@ class mainScene(Scene):
         self.configButton = textButton(UI_words["config"][mainScene.cur_lang],Obj.game_geometry['button']['button1'],color=Cs.hexColor("9DB6CC"))
 
         self.configIcon = imageObj("setting_icon.png",pos=(30,30),scale=0.07) ## 설정 아이콘
-        self.configIcon.setParent(self.configButton)
+        self.configIcon.setParent(self.configButton,depth=2)
         self.configIcon.center = RPoint(30,23)
         
         self.configButton.connect(configScene.turnToConfig)
@@ -1818,6 +1820,7 @@ class mainScene(Scene):
             Rs.fillScreen(Cs.brown)
             self.bufferBackground.draw()
             self.bufferText.draw()
+            pygame.display.flip()
             pygame.display.update()
             time.sleep(0.05)
         
@@ -2043,12 +2046,12 @@ class mainScene(Scene):
 
         ## Button Updates ##
         if self.raiseRematch:
-            for button in self.rematchButtonLayout.childs:
+            for button in self.rematchButtonLayout.getChilds():
                 button.alpha = min(200,button.alpha+20)
                 
             self.rematchButtonLayout.update()
         else:
-            for button in self.rematchButtonLayout.childs:
+            for button in self.rematchButtonLayout.getChilds():
                 button.alpha = max(0,button.alpha-20)
 
         self.buttonLayout.update()
@@ -2164,9 +2167,9 @@ class mainScene(Scene):
                     self.talkBgObj.alpha = int(self.talkTimer*8)
                     self.conversationButton.alpha = int((25-self.talkTimer)*8)
                     if self.talkTimer>1:
-                        self.conversationButton.hoverMode=False
+                        self.conversationButton.enabled=False
                     else:
-                        self.conversationButton.hoverMode=True
+                        self.conversationButton.enabled=True
 
                 else:
                     self.talkBgObj.alpha = min(200,self.talkBgObj.alpha+20)
@@ -2204,27 +2207,27 @@ class configScene(Scene):
             ##선택된 옵션은 색을 진하게, 선택되지 않은 옵션은 밝게
             if sheet[option] == curState:
                 _color = Cs.dark(Cs.tiffanyBlue)
-                _hoverMode = False
+                _enabled = False
             else:
                 _color = Cs.tiffanyBlue
-                _hoverMode = True
+                _enabled = True
 
 
-            button = textButton(str(option),Obj.game_geometry['button']['button1'],color=_color,hoverMode=_hoverMode)
+            button = textButton(str(option),Obj.game_geometry['button']['button1'],color=_color,enabled=_enabled)
                 
             ##함수 제너레이터
             def f(_sheet,_option):
                 def _():
                     Rs.acquireDrawLock()
                     settingFunc(_sheet,_option) ##옵션 설정 함수 실행
-                    for button in layout.childs:
+                    for button in layout.getChilds():
                         ##선택된 버튼은 색을 진하게, 선택되지 않은 버튼은 밝게
                         if button.text == str(_option):
                             button.color = Cs.dark(Cs.tiffanyBlue)
-                            button.hoverMode = False
+                            button.enabled = False
                         else:
                             button.color = Cs.tiffanyBlue
-                            button.hoverMode = True
+                            button.enabled = True
                     Rs.releaseDrawLock()
                     mainScene.saveConfig() ##설정 저장
                 return _
@@ -2328,7 +2331,7 @@ class configScene(Scene):
             Scenes.mainScene.initUI()
 
         self.languageSelectionLayout = self.makeButtonLayout(languageSheet,mainScene.cur_lang,setLanguage)
-        for button in self.languageSelectionLayout.childs:
+        for button in self.languageSelectionLayout.getChilds():
             ##언어에 따라 버튼 폰트 변경
             value = languageSheet[button.text]
             if value=='cn':
@@ -2360,7 +2363,7 @@ class configScene(Scene):
             cur_rating = Obj.config["rating"]
         self.ratingSelectionLayout = self.makeButtonLayout(ratingSheet,cur_rating,setRating)
 
-        self.rightSettingLayout = layoutObj(pygame.Rect(w-t*9,t*2,0,0),isVertical=True,childs=[self.ratingLabel,self.ratingSelectionLayout],spacing=20)
+        self.rightSettingLayout = layoutObj(pygame.Rect(w-t*10+30,t*2,0,0),isVertical=True,childs=[self.ratingLabel,self.ratingSelectionLayout],spacing=20)
 
         return
     def init(self):
